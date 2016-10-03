@@ -11,10 +11,11 @@ define(["angular",
 	"components/segments/motionSegment",
 	"components/segments/segmentStash",
 	"components/util/fastMath",
-	"components/profile/profileHelper"
+	"components/profile/profileHelper",
+	"components/segments/accelSegment"
 ], function(angular) {
-	angular.module("myApp").factory('motionProfileFactory', ['MotionSegment', 'SegmentStash', 'FastMath', 'ProfileHelper',
-		function(MotionSegment, SegmentStash, fastMath, profileHelper) {
+	angular.module("myApp").factory('motionProfileFactory', ['AccelSegment','MotionSegment', 'SegmentStash', 'FastMath', 'ProfileHelper',
+		function(AccelSegment,MotionSegment, SegmentStash, fastMath, profileHelper) {
 
 
 			/*
@@ -197,6 +198,25 @@ define(["angular",
 				return new MotionProfile(type);
 			};
 
+			factory.createAccelSegment=function(type, segment) {
+				if(!type)
+					throw new Error('Need type of segment to create');
+
+				if(!segment)
+					throw new Error("Need segment data to create a segment");
+
+				switch(type)
+				{
+					case "time-distance":
+						return AccelSegment.MakeFromTimeDistance(segment.t0, segment.tf, segment.p0, segment.v0, segment.pf, segment.jPct, segment.mode);
+					case "time-velocity":
+						return AccelSegment.MakeFromTimeVelocity(segment.t0, segment.tf, segment.p0, segment.v0, segment.vf, segment.jPct, segment.mode);
+
+					default:
+						throw new Error("segment type not supported");
+				}
+
+			};
 
 
 			return factory;

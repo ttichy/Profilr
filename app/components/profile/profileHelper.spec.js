@@ -29,7 +29,6 @@ define(["angularMocks","components/profile/profileHelper","components/profile/mo
     });
 
 
-
     it('profile helper should validate basic segments in a valid profile', function() {
       var profile = motionProfileFactory.createMotionProfile("rotary");
 
