@@ -12,16 +12,23 @@ There are various segments, such as
 
 ## Getting Started
 
-To get you started you can simply clone the ngProfileEditor project and install the dependencies:
+To get you started you can simply clone the project and install the dependencies:
+```shell
+npm install
+```
 
 ### Prerequisites
 
-You need to be using [angular][angular] and use ngProfileEditor as a module
+You need to be using [angular][angular] and use Profilr as a module
 
 
 ### Usage
 
-ngProfileEditor exposes various functions and objects to build a motion profile.
+Profilr exposes various functions and objects to build a motion profile.
+
+Emphasis on speed and support of tens of thousands of segments.
+
+
 
 Please see the test folder for various unit tests that show by example how to create segments and put them into a profile
 
