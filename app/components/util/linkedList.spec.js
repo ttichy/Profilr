@@ -5,7 +5,7 @@ define(['app', 'angularMocks','components/util/LinkedList'], function(app) {
   describe('linked list', function() {
     var linkedList;
 
-    beforeEach(module('profileEditor.ll'));
+    beforeEach(module('myApp'));
 
 
     beforeEach( inject( function(_LinkedList_){

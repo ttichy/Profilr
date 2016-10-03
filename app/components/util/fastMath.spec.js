@@ -1,7 +1,17 @@
 'use strict';
 
-define(['app','components/util/fastMath', 'angularMocks'], function(app,fm) {
+define(['app', 'angularMocks','components/util/fastMath'], function(app) {
   describe('myApp.version module', function() {
+
+
+    beforeEach(module('myApp'));
+
+    var fm;
+    beforeEach(inject(function(_FastMath_) {
+      fm = _FastMath_;
+    }));
+
+
 
     describe('fastMath AMD module', function() {
       it('should be loaded', function() {

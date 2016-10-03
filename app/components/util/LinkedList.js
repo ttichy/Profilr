@@ -1,8 +1,8 @@
 'use strict';
 
-define(['angular'],
+define(['angular','app'],
 	function(angular) {
-		angular.module('profileEditor.ll',[])
+		angular.module('myApp')
 			.factory('LinkedList', [function() {
 
 
