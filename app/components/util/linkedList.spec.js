@@ -1,7 +1,7 @@
 /* global describe, it, expect, beforeEach, afterEach, module, inject */
 'use strict';
 
-define(['app', 'angularMocks','components/util/LinkedList'], function(app) {
+define(['app', 'angularMocks','components/util/linkedList'], function(app) {
   describe('linked list', function() {
     var linkedList;
 
