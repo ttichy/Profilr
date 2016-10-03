@@ -249,6 +249,43 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 		};
 
+		/**
+		 * Edit user entered segment values
+		 * @param  {Object} newSegmentData      new user entered data
+		 * @param {Object} initialConditions initial conditions
+		 */
+		AccelSegmentTimeVelocity.prototype.modifySegmentValues = function(newSegmentData, initialConditions) {
+
+
+			if (newSegmentData.mode !== "absolute")
+				newSegmentData.mode = "incremental";
+
+
+			this.segmentData.mode = newSegmentData.mode || this.segmentData.mode;
+			this.segmentData.finalVelocity= newSegmentData.finalVelocity || this.segmentData.finalVelocity;
+			this.segmentData.duration = newSegmentData.duration || this.segmentData.duration;
+			this.segmentData.jerkPercent = newSegmentData.jerkPercent || this.segmentData.jerkPercent;
+			
+			this.finalTime=this.initialTime+this.segmentData.duration;
+
+
+			var newBasicSegments = this.calculateBasicSegments(this.initialTime,
+				this.finalTime,
+				initialConditions.position,
+				initialConditions.velocity,
+				this.segmentData.finalVelocity,
+				this.segmentData.jerkPercent
+			);
+
+			this.segments.initializeWithSegments(newBasicSegments);
+
+			return this;
+
+			
+		};
+
+
+
 
 		/**
 		 * Acceleration segment that is based on time and distance.

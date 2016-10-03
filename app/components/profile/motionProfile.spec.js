@@ -444,6 +444,95 @@
             });
 
 
+            it("should be able to modify final velocity for AccelSegmentTimeVelocity segment ", function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    vf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
+
+                });
+
+                profile.appendSegment(seg1);
+
+
+                var sameSeg = profile.getAllSegments()[0];
+
+                //we should get back the same segment that we just created
+                expect(sameSeg).toBe(seg1);
+
+                sameSeg.modifySegmentValues({
+                    finalVelocity: 2.5
+                }, {
+                    position: 0,
+                    velocity: 0
+                });
+
+                var finalValues = sameSeg.getFinalValues();
+
+                expect(finalValues.length).toBe(4);
+
+                var finalPos = finalValues[3];
+                var finalVel = finalValues[2];
+
+                expect(finalPos).toBe(2.5);
+                expect(finalVel).toBe(2.5);
+
+
+            });
+
+
+            it("should be able to modify final velocity, duration and jerk for AccelSegmentTimeVelocity segment ", function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    vf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
+
+                });
+
+                profile.appendSegment(seg1);
+
+
+                var sameSeg = profile.getAllSegments()[0];
+
+                //we should get back the same segment that we just created
+                expect(sameSeg).toBe(seg1);
+
+                sameSeg.modifySegmentValues({
+                    finalVelocity: 2.5,
+                    duration: 1.2,
+                    jerkPercent:0.25
+                }, {
+                    position: 0,
+                    velocity: 0
+                });
+
+                var finalValues = sameSeg.getFinalValues();
+
+                expect(finalValues.length).toBe(4);
+
+                var finalPos = finalValues[3];
+                var finalVel = finalValues[2];
+
+                expect(finalPos).toBeCloseTo(1.5,0.8);
+                expect(finalVel).toBe(2.5);
+
+
+            });            
+
 
         });
 
