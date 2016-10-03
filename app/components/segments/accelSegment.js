@@ -416,31 +416,41 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 		};
 
+
 		/**
-		 * Helper function to convert final position to final velocity in order to construct the accel segment
-		 * @param  {Number} t0 initial time
-		 * @param  {Number} tf final time
-		 * @param  {Number} v0 initial velocity
-		 * @param  {Number} p0 initial position
-		 * @param  {Number} pf final position
-		 * @return {Number}    calculated final velocity
+		 * Edit user entered segment values
+		 * @param  {Object} newSegmentData      new user entered data
+		 * @param {Object} initialConditions initial conditions
 		 */
-		// AccelSegmentTimeDistance.prototype.convertToFinalVelocity = function(t0,tf,p0,pf,v0) {
-
-		// 	//t1, tm and t2 are times within trapezoidal velocity
-		// 	var t1Len=0.5*this.segmentData.jerkPercent*(tf-t0);
-		// 	var t1=t0+t1Len;
-		// 	var tm=(tf-t0)-(2 * t1Len);
-		// 	var t2= t1+tm;
-		// 	//var aMax=(pf-p0 - v0 * (tf-t0))/(1.5*t1*tm+t1*t1 + 0.5* tm*tm);
-
-		// 	var aMax=(this.segmentData.distance-v0*tf) / (1.5 * t1 * tm + t1*t1 + 0.5 * tm*tm);
+		AccelSegmentTimeDistance.prototype.modifySegmentValues = function(newSegmentData, initialConditions) {
 
 
-		// 	var vf=v0+aMax*(tf+t2-t1)/2;
+			if (newSegmentData.mode !== "absolute")
+				newSegmentData.mode = "incremental";
 
-		// 	return vf;
-		// };
+
+			this.segmentData.mode = newSegmentData.mode || this.segmentData.mode;
+			this.segmentData.distance= newSegmentData.distance || this.segmentData.distance;
+			this.segmentData.duration = newSegmentData.duration || this.segmentData.duration;
+			this.segmentData.jerkPercent = newSegmentData.jerkPercent || this.segmentData.jerkPercent;
+			
+			this.finalTime=this.initialTime+this.segmentData.duration;
+
+
+			var newBasicSegments = this.calculateBasicSegments(this.initialTime,
+				this.finalTime,
+				initialConditions.position,
+				initialConditions.velocity,
+				initialConditions.position+this.segmentData.distance,
+				this.segmentData.jerkPercent
+			);
+
+			this.segments.initializeWithSegments(newBasicSegments);
+
+			return this;
+
+			
+		};
 
 
 
@@ -490,10 +500,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		};
 
 
-
-		factory.MakeFromPosition = function(t0, tf, p0, pf, v0, j) {
-			//TODO: add awesome JS here
-		};
 
 
 		return factory;

@@ -283,18 +283,18 @@
             });
 
 
-            it("should be able to create segments via motionProfile accel segment function",function(){
+            it("should be able to create segments via motionProfile accel segment function", function() {
 
                 var profile = motionProfileFactory.createMotionProfile("rotary");
 
-                var seg1=motionProfileFactory.createAccelSegment("time-velocity",{
-                    t0:0,
-                    tf:2,
-                    p0:0,
-                    v0:0,
-                    vf:5,
-                    jPct:0.5,
-                    mode:"incremental"
+                var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    vf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
 
                 });
 
@@ -302,12 +302,148 @@
 
 
 
-                var allSegments=profile.getAllBasicSegments();
+                var allSegments = profile.getAllBasicSegments();
                 expect(allSegments.length).toBe(3);
 
 
 
             });
+
+
+            it("should be able to modify final position for AccelSegmentTimeDistance segment ", function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var seg1 = motionProfileFactory.createAccelSegment("time-distance", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    pf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
+
+                });
+
+                profile.appendSegment(seg1);
+
+
+                var sameSeg = profile.getAllSegments()[0];
+
+                //we should get back the same segment that we just created
+                expect(sameSeg).toBe(seg1);
+
+                sameSeg.modifySegmentValues({
+                    distance: 2.5
+                }, {
+                    position: 0,
+                    velocity: 0
+                });
+
+                var finalValues = sameSeg.getFinalValues();
+
+                expect(finalValues.length).toBe(4);
+
+                var finalPos = finalValues[3];
+                var finalVel = finalValues[2];
+
+                expect(finalPos).toBe(2.5);
+                expect(finalVel).toBe(2.5);
+
+
+            });
+
+
+
+            it("should be able to modify final time for AccelSegmentTimeDistance segment ", function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var seg1 = motionProfileFactory.createAccelSegment("time-distance", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    pf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
+
+                });
+
+                profile.appendSegment(seg1);
+
+
+                var sameSeg = profile.getAllSegments()[0];
+
+                //we should get back the same segment that we just created
+                expect(sameSeg).toBe(seg1);
+
+                sameSeg.modifySegmentValues({
+                    duration: 1
+                }, {
+                    position: 0,
+                    velocity: 0
+                });
+
+                var finalValues = sameSeg.getFinalValues();
+
+                expect(finalValues.length).toBe(4);
+
+                var finalPos = finalValues[3];
+                var finalVel = finalValues[2];
+
+                expect(finalPos).toBe(5);
+                expect(finalVel).toBe(10);
+
+
+            });
+
+            it("should be able to modify final time, final position and jerk for AccelSegmentTimeDistance segment ", function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var seg1 = motionProfileFactory.createAccelSegment("time-distance", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    pf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
+
+                });
+
+                profile.appendSegment(seg1);
+
+
+                var sameSeg = profile.getAllSegments()[0];
+
+                //we should get back the same segment that we just created
+                expect(sameSeg).toBe(seg1);
+
+                sameSeg.modifySegmentValues({
+                    duration: 1,
+                    distance: 1.5,
+                    jerkPercent: 0.25
+                }, {
+                    position: 0,
+                    velocity: 0
+                });
+
+                var finalValues = sameSeg.getFinalValues();
+
+                expect(finalValues.length).toBe(4);
+
+                var finalPos = finalValues[3];
+                var finalVel = finalValues[2];
+
+                expect(finalPos).toBe(1.5);
+                expect(finalVel).toBe(3);
+
+
+            });
+
+
 
         });
 
