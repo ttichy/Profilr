@@ -46,7 +46,7 @@ define(["angular",
 			 * @param {Number} position position in [rad] or [m]
 			 * @param {Number} velocity velocity in [rad/s] or [m/s]
 			 */
-			MotionProfile.prototype.setInitialConditions = function(position, velocity) {
+			MotionProfile.prototype.setInitialConditions = function(position, velocity, loadMass, appliedForce, friction) {
 				this.initialPosition = position;
 				this.initialVelocity = velocity;
 
@@ -138,8 +138,6 @@ define(["angular",
 				var current = this.segments.getNextSegment(newSegment.id);
 				this.recalculateProfileSegments(current);
 
-
-
 			};
 
 			/**
@@ -158,7 +156,6 @@ define(["angular",
 					var lastValues = lastSegment.getFinalValues();
 					segment.modifyInitialValues(lastValues[0], lastValues[1], lastValues[2], lastValues[3]);
 				}
-
 
 				this.segments.insertAt(segment, null);
 			};
@@ -192,7 +189,36 @@ define(["angular",
 
 			};
 
+
+	        /**
+	         * 
+	         * @param {int} segmentId 
+	         * @param {Object} newSegmentData new segment data
+	         * @param {Object} initialConditions initial conditions for the modified segment
+	         * @returns {MotionSegment} 
+	         */
+	        MotionProfile.prototype.modifySegmentValues = function(segmentId, newSegmentData, initialConditions) {
+	            var segment = this.findById(segmentId);
+	            if (!segment)
+	                throw new Error("Unable to find segment with id " + segmentId);
+
+	            var modified = segment.modifySegmentValues(newSegmentData, initialConditions);
+
+	            return modified;
+
+
+	        };
+
+
+
+	        MotionProfile.prototype.findById = function(segmentId) {
+	            return this.segments.findById(segmentId);
+	        };
+
+
+
 			var factory = {};
+
 
 			factory.createMotionProfile = function(type) {
 				return new MotionProfile(type);
