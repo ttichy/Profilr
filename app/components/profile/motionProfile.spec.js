@@ -260,6 +260,38 @@
             });
 
 
+            it("should be able to find parent segment via its child segment id", function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    vf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
+
+                });
+
+                profile.appendSegment(seg1);
+
+
+
+                var allSegments = profile.getAllBasicSegments();
+                
+                var childSegment=allSegments[1];
+
+                var parent = profile.findParentSegmentByChildId(childSegment.id);
+
+                expect(parent).toBe(seg1);
+
+
+
+            });
+
+
             it('appending a segment should match final conditions of the previous segment ', function() {
 
                 var profile = motionProfileFactory.createMotionProfile("rotary");

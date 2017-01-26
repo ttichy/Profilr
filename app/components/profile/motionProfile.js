@@ -190,6 +190,30 @@ define(["angular",
 			};
 
 
+			/**
+			 * Finds parent segment by child segment id. Eg. pass a basic segment id, get back its accel segment
+			 * @param  {int} segmentId segment id
+			 * @return {MotionSegment}           parent segment
+			 */
+			MotionProfile.prototype.findParentSegmentByChildId=function(segmentId){
+				if (!fastMath.isNumeric(segmentId) || fastMath.lt(segmentId, 0))
+					throw new Error('expect segmentId to be a positive integer');
+
+				var childSegment;
+				var parentSegments = this.getAllSegments();
+
+				// go through all parent segments and utilize its stash to try to find the child
+				for (var i = parentSegments.length - 1; i >= 0; i--) {
+					childSegment=parentSegments[i].segments.findById(segmentId);
+					if(childSegment)
+						return parentSegments[i];
+				}
+
+				return null;
+
+			};
+
+
 	        /**
 	         * 
 	         * @param {int} segmentId 
