@@ -8,12 +8,13 @@
 
 "use strict";
 define(["angular",
+	"undomanager",
 	"components/segments/motionSegment",
 	"components/segments/segmentStash",
 	"components/util/fastMath",
 	"components/profile/profileHelper",
 	"components/segments/accelSegment"
-], function(angular) {
+], function(angular,UndoManager) {
 	angular.module("myApp").factory('motionProfileFactory', ['AccelSegment','MotionSegment', 'SegmentStash', 'FastMath', 'ProfileHelper',
 		function(AccelSegment,MotionSegment, SegmentStash, fastMath, profileHelper) {
 
@@ -32,6 +33,9 @@ define(["angular",
 
 				if (type === "linear")
 					this.ProfileType = "linear";
+
+				this.undoManager = new UndoManager();
+
 
 				MotionSegment.MotionSegment.call(this);
 			};
@@ -158,6 +162,16 @@ define(["angular",
 				}
 
 				this.segments.insertAt(segment, null);
+
+				// undo /redo functionality
+				this.undoManager.add({
+			        undo: function() {
+			            this.deleteSegment(segment.id);
+			        },
+			        redo: function() {
+			            this.appendSegment(segment);
+			        }
+			    });
 			};
 
 
