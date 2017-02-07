@@ -1,6 +1,6 @@
 "use strict";
 // get app reference
-define(["angular", "components/segments/segmentStash"], function(angular) {
+define(["angular","undomanager", "components/segments/segmentStash"], function(angular,UndoManager) {
 	angular.module("myApp").factory('MotionSegment', ['FastMath', 'SegmentStash', function(fastMath, SegmentStash) {
 
 		/**
