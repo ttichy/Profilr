@@ -10,6 +10,7 @@ module.exports = function(config){
       {pattern: 'app/bower_components/angular/angular.js', included: false},
       {pattern: 'app/bower_components/angular-route/angular-route.js', included: false},
       {pattern: 'app/bower_components/angular-mocks/angular-mocks.js', included: false},
+      {pattern: 'app/bower_components/undo-manager/lib/undomanager.js', included: false},
       {pattern: 'app/components/**/*.js', included: false},
       {pattern: 'app/view*/**/*.js', included: false},
       {pattern: 'app/app.js', included: false},
