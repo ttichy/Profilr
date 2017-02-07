@@ -613,10 +613,80 @@
 
 
 
-            });            
+            });    
+
+        it('should be able to undo appending a segment ', function() {
+
+            var profile = motionProfileFactory.createMotionProfile("rotary");
+
+            var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
+
+            profile.appendSegment(accelSegment1);
+
+            var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
+
+            profile.appendSegment(accelSegment2);
+
+            var allSegments = profile.getAllSegments();
+            expect(allSegments.length).toBe(2);
+
+            //perform the undo operation
+            profile.undo();
+
+            allSegments = profile.getAllSegments();
+            expect(allSegments.length).toBe(1);
+            expect(allSegments[0]).toBe(accelSegment1);
+
+            profile.undo();
+            allSegments = profile.getAllSegments();
+            expect(allSegments.length).toBe(0);
+
+        });
+
+        it('should be able to undo and redo appending segments ', function() {
+
+            var profile = motionProfileFactory.createMotionProfile("rotary");
+
+            var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
+
+            profile.appendSegment(accelSegment1);
+
+            var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
+
+            profile.appendSegment(accelSegment2);
+
+            var allSegments = profile.getAllSegments();
+            expect(allSegments.length).toBe(2);
+
+            //perform the undo operation
+            profile.undo();
+
+            allSegments = profile.getAllSegments();
+            expect(allSegments.length).toBe(1);
+            expect(allSegments[0]).toBe(accelSegment1);
+
+            profile.undo();
+            allSegments = profile.getAllSegments();
+            expect(allSegments.length).toBe(0);
+
+
+            profile.redo();
+            allSegments = profile.getAllSegments();
+            expect(allSegments.length).toBe(1);
+            expect(allSegments[0]).toBe(accelSegment1);
+
+            profile.redo();
+            allSegments = profile.getAllSegments();
+            expect(allSegments.length).toBe(2);
+            expect(allSegments[0]).toBe(accelSegment1);
+            expect(allSegments[1]).toBe(accelSegment2);
+            
 
 
         });
 
 
     });
+
+
+});

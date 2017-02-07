@@ -163,13 +163,15 @@ define(["angular",
 
 				this.segments.insertAt(segment, null);
 
+				var profile=this;
+
 				// undo /redo functionality
 				this.undoManager.add({
 			        undo: function() {
-			            this.deleteSegment(segment.id);
+			            profile.deleteSegment(segment.id);
 			        },
 			        redo: function() {
-			            this.appendSegment(segment);
+			            profile.appendSegment(segment);
 			        }
 			    });
 			};
@@ -247,6 +249,14 @@ define(["angular",
 
 	        };
 
+
+	        MotionProfile.prototype.undo = function() {
+	        	this.undoManager.undo();
+	        };
+
+	        MotionProfile.prototype.redo = function() {
+	        	this.undoManager.redo();
+	        };
 
 
 	        MotionProfile.prototype.findById = function(segmentId) {
