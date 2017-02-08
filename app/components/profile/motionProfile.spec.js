@@ -280,8 +280,8 @@
 
 
                 var allSegments = profile.getAllBasicSegments();
-                
-                var childSegment=allSegments[1];
+
+                var childSegment = allSegments[1];
 
                 var parent = profile.findParentSegmentByChildId(childSegment.id);
 
@@ -544,7 +544,7 @@
                 //we should get back the same segment that we just created
                 expect(sameSeg).toBe(seg1);
 
-                profile.modifySegmentValues(seg1.id,{
+                profile.modifySegmentValues(seg1.id, {
                     finalVelocity: 2.5
                 }, {
                     position: 0,
@@ -564,7 +564,6 @@
 
 
             });
-
 
 
 
@@ -594,7 +593,7 @@
                 sameSeg.modifySegmentValues({
                     finalVelocity: 2.5,
                     duration: 1.2,
-                    jerkPercent:0.25
+                    jerkPercent: 0.25
                 }, {
                     position: 0,
                     velocity: 0
@@ -607,86 +606,223 @@
                 var finalPos = finalValues[3];
                 var finalVel = finalValues[2];
 
-                expect(finalPos).toBeCloseTo(1.5,0.8);
+                expect(finalPos).toBeCloseTo(1.5, 0.8);
                 expect(finalVel).toBe(2.5);
 
 
 
+            });
 
-            });    
+            it('should be able to undo appending a segment ', function() {
 
-        it('should be able to undo appending a segment ', function() {
+                var profile = motionProfileFactory.createMotionProfile("rotary");
 
-            var profile = motionProfileFactory.createMotionProfile("rotary");
+                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
 
-            var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
+                profile.appendSegment(accelSegment1);
 
-            profile.appendSegment(accelSegment1);
+                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
 
-            var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
+                profile.appendSegment(accelSegment2);
 
-            profile.appendSegment(accelSegment2);
+                var allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(2);
 
-            var allSegments = profile.getAllSegments();
-            expect(allSegments.length).toBe(2);
+                //perform the undo operation
+                profile.undo();
 
-            //perform the undo operation
-            profile.undo();
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(1);
+                expect(allSegments[0]).toBe(accelSegment1);
 
-            allSegments = profile.getAllSegments();
-            expect(allSegments.length).toBe(1);
-            expect(allSegments[0]).toBe(accelSegment1);
+                profile.undo();
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(0);
 
-            profile.undo();
-            allSegments = profile.getAllSegments();
-            expect(allSegments.length).toBe(0);
+            });
 
-        });
+            it('should be able to undo and redo appending segments ', function() {
 
-        it('should be able to undo and redo appending segments ', function() {
+                var profile = motionProfileFactory.createMotionProfile("rotary");
 
-            var profile = motionProfileFactory.createMotionProfile("rotary");
+                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
 
-            var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
+                profile.appendSegment(accelSegment1);
 
-            profile.appendSegment(accelSegment1);
+                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
 
-            var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
+                profile.appendSegment(accelSegment2);
 
-            profile.appendSegment(accelSegment2);
+                var allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(2);
 
-            var allSegments = profile.getAllSegments();
-            expect(allSegments.length).toBe(2);
+                //perform the undo operation
+                profile.undo();
 
-            //perform the undo operation
-            profile.undo();
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(1);
+                expect(allSegments[0]).toBe(accelSegment1);
 
-            allSegments = profile.getAllSegments();
-            expect(allSegments.length).toBe(1);
-            expect(allSegments[0]).toBe(accelSegment1);
-
-            profile.undo();
-            allSegments = profile.getAllSegments();
-            expect(allSegments.length).toBe(0);
+                profile.undo();
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(0);
 
 
-            profile.redo();
-            allSegments = profile.getAllSegments();
-            expect(allSegments.length).toBe(1);
-            expect(allSegments[0]).toBe(accelSegment1);
+                profile.redo();
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(1);
+                expect(allSegments[0]).toBe(accelSegment1);
 
-            profile.redo();
-            allSegments = profile.getAllSegments();
-            expect(allSegments.length).toBe(2);
-            expect(allSegments[0]).toBe(accelSegment1);
-            expect(allSegments[1]).toBe(accelSegment2);
-            
+                profile.redo();
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(2);
+                expect(allSegments[0]).toBe(accelSegment1);
+                expect(allSegments[1]).toBe(accelSegment2);
 
+
+
+            });
+
+            it('should be able to undo and redo deleting segments ', function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
+
+                profile.appendSegment(accelSegment1);
+
+                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
+
+                profile.appendSegment(accelSegment2);
+
+                var allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(2);
+
+
+                profile.deleteSegment(accelSegment2.id);
+                profile.deleteSegment(accelSegment1.id);
+
+                expect(profile.getAllSegments().length).toBe(0);
+
+
+                profile.undo();
+                profile.undo();
+
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(2);
+                expect(allSegments[0]).toBe(accelSegment1);
+                expect(allSegments[1]).toBe(accelSegment2);
+
+
+                profile.redo(); //redoing the second delete operation
+                allSegments = profile.getAllSegments();
+                expect(allSegments[0]).toBe(accelSegment1);
+
+                profile.redo();
+                //redoing the first delete operation, should have no segments
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(0);
+
+
+
+            });
+
+            it('should insert a segment in between two other segments, then undo and redo', function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 10, 0.5);
+
+                profile.appendSegment(accelSegment1);
+
+                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 0, 0.5);
+
+                profile.appendSegment(accelSegment2);
+
+                var accelSegment3 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 5, 0, 0.5);
+
+                profile.insertSegment(accelSegment3, accelSegment2.id);
+
+                //undo the insert operation
+                profile.undo();
+
+                //after inserting, there should be 3 segments total
+                expect(profile.getAllSegments().length).toBe(2);
+
+                var allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(2);
+                expect(allSegments[0]).toBe(accelSegment1);
+                expect(allSegments[1]).toBe(accelSegment2);
+
+                //redo the insert operation
+                profile.redo();
+                allSegments = profile.getAllSegments();
+                expect(allSegments.length).toBe(3);
+                expect(allSegments[0]).toBe(accelSegment1);
+                expect(allSegments[1]).toBe(accelSegment3);
+                expect(allSegments[2]).toBe(accelSegment2);
+
+
+            });
+
+
+            it("should be able to modify final position and then undo and redo it", function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var seg1 = motionProfileFactory.createAccelSegment("time-distance", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    pf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
+
+                });
+
+                profile.appendSegment(seg1);
+
+
+                var sameSeg = profile.getAllSegments()[0];
+
+                //we should get back the same segment that we just created
+                expect(sameSeg).toBe(seg1);
+
+                profile.modifySegmentValues(sameSeg.id,{
+                    distance: 2.5
+                }, {
+                    position: 0,
+                    velocity: 0
+                });
+
+                // make sure expected final values are still valid
+                var finalValues = sameSeg.getFinalValues();
+
+                expect(finalValues.length).toBe(4);
+
+                var finalPos = finalValues[3];
+                var finalVel = finalValues[2];
+
+                expect(finalPos).toBe(2.5);
+                expect(finalVel).toBe(2.5);
+
+
+                //undo modify operation
+                profile.undo();
+
+                sameSeg = profile.getAllSegments()[0];
+                finalValues = sameSeg.getFinalValues();
+                finalPos = finalValues[3];
+
+                //back to the original
+                expect(finalPos).toBe(5);
+
+
+
+            });
 
         });
 
 
     });
-
-
-});

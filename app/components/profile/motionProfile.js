@@ -142,6 +142,20 @@ define(["angular",
 				var current = this.segments.getNextSegment(newSegment.id);
 				this.recalculateProfileSegments(current);
 
+				var profile=this;
+
+				// undo /redo functionality
+				this.undoManager.add({
+			        undo: function() {
+			            profile.deleteSegment(newSegment.id);
+			        },
+			        redo: function() {
+			            profile.insertSegment(segment,segmentId);
+			        }
+			    });
+
+
+
 			};
 
 			/**
@@ -194,11 +208,25 @@ define(["angular",
 				if (!segToDelete)
 					throw new Error("Unable to delete segment with id " + segmentId);
 
+				//undo / redo
+				var profile=this;
+				this.undoManager.add({
+			        undo: function() {
+			            profile.appendSegment(segToDelete);
+			        },
+			        redo: function() {
+			            profile.deleteSegment(segmentId);
+			        }
+			    });
+
+
 				//could be the only segment
 				if (this.segments.countSegments() === 0)
 					return segToDelete;
 
 				this.recalculateProfileSegments(current);
+
+
 
 
 				return segToDelete;
@@ -242,19 +270,40 @@ define(["angular",
 	            if (!segment)
 	                throw new Error("Unable to find segment with id " + segmentId);
 
+	            var originalSegmentData = {};
+	            angular.extend(originalSegmentData,segment.segmentData);
+
 	            var modified = segment.modifySegmentValues(newSegmentData, initialConditions);
 
-	            return modified;
 
+	            //undo / redo
+				var profile=this;
+				this.undoManager.add({
+			        undo: function() {
+			            profile.modifySegmentValues(segmentId, originalSegmentData, initialConditions);
+			        },
+			        redo: function() {
+			            profile.modifySegmentValues(segmentId, newSegmentData, initialConditions);
+			        }
+			    });
+
+
+	            return modified;
 
 	        };
 
 
 	        MotionProfile.prototype.undo = function() {
+	        	if(!this.undoManager.hasUndo())
+	        		throw new Error("There is nothing to undo");
 	        	this.undoManager.undo();
 	        };
 
 	        MotionProfile.prototype.redo = function() {
+
+	        	if(!this.undoManager.hasRedo())
+	        		throw new Error("There is nothing to redo");
+
 	        	this.undoManager.redo();
 	        };
 
