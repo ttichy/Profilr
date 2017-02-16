@@ -5,7 +5,14 @@ define(["angular", "components/util/polynomial", "components/segments/motionSegm
 		angular.module('myApp').factory('basicSegmentFactory', ['Polynomial', 'MotionSegment', 'FastMath',
 			function(polynomialFactory, MotionSegment, FastMath) {
 
-				var BasicMotionSegment = function(t0, tf, positionPolyCoeffs) {
+				/**
+				 * constructor for basic motion segment
+				 * @param {int} t0                 initial time
+				 * @param {int} tf                 final time
+				 * @param {Array} positionPolyCoeffs array of polynomial coefficients
+				 * @param {Object} loads              load definition
+				 */
+				var BasicMotionSegment = function(t0, tf, positionPolyCoeffs, loads) {
 
 					MotionSegment.MotionSegment.call(this, t0, tf);
 
@@ -29,6 +36,23 @@ define(["angular", "components/util/polynomial", "components/segments/motionSegm
 
 					//not using the stash, there is only one segment here
 					this.segments = null;
+
+					if(! loads) {
+						 //thrust is external force or torque
+							this.thrust = 0;
+
+							//friction - either friction coefficient (for linear) or friction (for rotary)
+							this.friction = 0;
+
+							//load - either mass or inertia
+							this.load = 0;
+					}
+					else {
+						this.thrust = loads.thrust || 0;
+						this.friction = loads.friction || 0;
+						this.load = loads.load || 0;
+					}
+
 
 
 				};
@@ -58,13 +82,13 @@ define(["angular", "components/util/polynomial", "components/segments/motionSegm
 
 				var factory = {};
 
-				factory.CreateBasicSegment = function(t0, tf, positionPolyCoeffs) {
+				factory.CreateBasicSegment = function(t0, tf, positionPolyCoeffs,loads) {
 					if (tf <= t0)
 						throw new Error('final time must be greater than initial time');
 					if (!Array.isArray(positionPolyCoeffs) || positionPolyCoeffs.length != 4)
 						throw new Error('expecting array of length 4');
 
-					var segment = new BasicMotionSegment(t0, tf, positionPolyCoeffs);
+					var segment = new BasicMotionSegment(t0, tf, positionPolyCoeffs,loads);
 
 					return segment;
 
