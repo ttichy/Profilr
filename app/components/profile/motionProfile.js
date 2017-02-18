@@ -313,7 +313,6 @@ define(["angular",
 	        };
 
 
-
 			var factory = {};
 
 
@@ -328,12 +327,19 @@ define(["angular",
 				if(!segment)
 					throw new Error("Need segment data to create a segment");
 
+				var loads={};
+				
+				loads.load=segment.load;
+				loads.thrust=segment.thrust;
+				loads.friction=segment.friction;
+
+
 				switch(type)
 				{
 					case "time-distance":
-						return AccelSegment.MakeFromTimeDistance(segment.t0, segment.tf, segment.p0, segment.v0, segment.pf, segment.jPct, segment.mode);
+						return AccelSegment.MakeFromTimeDistance(segment.t0, segment.tf, segment.p0, segment.v0, segment.pf, segment.jPct, segment.mode,loads);
 					case "time-velocity":
-						return AccelSegment.MakeFromTimeVelocity(segment.t0, segment.tf, segment.p0, segment.v0, segment.vf, segment.jPct, segment.mode);
+						return AccelSegment.MakeFromTimeVelocity(segment.t0, segment.tf, segment.p0, segment.v0, segment.vf, segment.jPct, segment.mode,loads);
 
 					default:
 						throw new Error("segment type not supported");

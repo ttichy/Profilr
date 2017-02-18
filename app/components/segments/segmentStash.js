@@ -115,7 +115,6 @@ define(["angular", "components/util/fastMath", "components/util/linkedList"], fu
 
 			return nodeToDel.data;
 
-
 		};
 
 		/**

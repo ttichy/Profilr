@@ -30,7 +30,7 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 		MotionSegment.prototype.generateId = function() {
 
 			var mSec = (new Date()).getTime().toString();
-			var rnd = Math.floor(Math.random() * 100).toString();
+			var rnd = Math.floor(Math.random() * 10000).toString();
 
 			var idStr = mSec + rnd;
 

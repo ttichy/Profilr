@@ -130,6 +130,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 		var AccelSegmentTimeVelocity = function(t0, tf, p0, v0, vf, jPct, mode,loads) {
 
+			if(arguments.length <=7 )
+				throw new Error("Expected at least 7 arguments in AccelSegmentTimeVelocity constructor");
+
 			if (mode !== "absolute")
 				mode = "incremental";
 
@@ -313,6 +316,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 * @param {string} mode absolute or incremental
 		 */
 		var AccelSegmentTimeDistance = function(t0, tf, p0, v0, pf, jPct, mode,loads) {
+			if(arguments.length <=7 )
+				throw new Error("Expected at least 7 arguments in AccelSegmentTimeDistance constructor");
+			
 			if (mode !== "absolute")
 				mode = "incremental";
 
