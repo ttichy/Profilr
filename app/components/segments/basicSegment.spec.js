@@ -2,7 +2,7 @@
 define(["angularMocks", "components/segments/basicSegment"], function() {
 
 
-  describe('Unit: basicSegmentFactory testing', function() {
+  describe('Unit: basicSegmentFactory motion testing', function() {
 
     var basicSegmentFactory;
 
@@ -69,29 +69,6 @@ define(["angularMocks", "components/segments/basicSegment"], function() {
 
 
     });
-
-
-    it('should create a basic segment [1,1], [2,2] with loads', function() {
-
-      var loads = {};
-      loads.friction = 1;
-      loads.load = 2;
-      loads.thrust = 3;
-
-
-      var seg = basicSegmentFactory.CreateBasicSegment(1, 2, [-0.5, 0, 1.5, 1], loads);
-
-      expect(seg.friction).toBe(loads.friction);
-      expect(seg.load).toBe(loads.load);
-      expect(seg.thrust).toBe(loads.thrust);
-
-
-
-    });
-
-
   });
-
-
 
 });
