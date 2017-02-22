@@ -825,4 +825,9 @@
         });
 
 
+        it("should be able to add a load segment to the motion profile", function() {
+
+        });
+
+
     });

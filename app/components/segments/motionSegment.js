@@ -1,7 +1,7 @@
 "use strict";
 // get app reference
-define(["angular", "components/segments/segmentStash"], function(angular) {
-	angular.module("myApp").factory('MotionSegment', ['FastMath', 'SegmentStash', function(fastMath, SegmentStash) {
+define(["angular","components/segments/segment"], function(angular) {
+	angular.module("myApp").factory('MotionSegment', ['FastMath', 'SegmentStash', 'SegmentFactory',  function(fastMath, SegmentStash,Segment) {
 
 		/**
 		 * MotionSegment is a collection of other MotionSegments. MotionSegment(s) form the entire MotionProfile
@@ -12,10 +12,7 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 		var MotionSegment = function(t0, tf) {
 
 
-			this.initialTime = t0;
-			this.finalTime = tf;
-
-			this.id = this.generateId();
+			Segment.Segment.call(this,t0,tf);
 
 			//each segment can hold other segments
 			this.segments = SegmentStash.makeStash();
@@ -23,20 +20,10 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 		};
 
 
+		MotionSegment.prototype = Object.create(Segment.Segment.prototype);
+		MotionSegment.prototype.constructor = MotionSegment;
 
-		/**
-		 * Generate unique id 
-		 */
-		MotionSegment.prototype.generateId = function() {
 
-			var mSec = (new Date()).getTime().toString();
-			var rnd = Math.floor(Math.random() * 10000).toString();
-
-			var idStr = mSec + rnd;
-
-			return parseInt(idStr, 10);
-
-		};
 
 
 

@@ -1,7 +1,7 @@
 "use strict";
 /**
  * SegmentStash is the backing data structure for low level segment operations.
- * A motion profile is really a sorted array of MotionSegments. Some MotionSegments may contain other MotionSegments
+ * A motion profile is really a sorted array of Segments. Some Segments may contain other Segments
  *
  * Also, in order to speed up search and insert/delete operation, two data structures are used:
  * linked list - insert
@@ -18,7 +18,7 @@ define(["angular", "components/util/fastMath", "components/util/linkedList"], fu
 
 			/**
 			 * [nodesHash description]
-			 * @type {Object} associative array of nodes. Each node contains a motion segment
+			 * @type {Object} associative array of nodes. Each node contains a motion or load segment
 			 */
 			this.nodesHash = {};
 
@@ -28,7 +28,7 @@ define(["angular", "components/util/fastMath", "components/util/linkedList"], fu
 
 		/**
 		 * Inserts a segment in front of another segment identified by segmentId
-		 * @param {MotionSegment} segment   Segment to insert
+		 * @param {Segment} segment   Segment to insert
 		 * @param {integer} segmentId segment Id of segment to insert in front of. If null, add at the end
 		 */
 		SegmentStash.prototype.insertAt = function(segment, segmentId) {
@@ -80,7 +80,7 @@ define(["angular", "components/util/fastMath", "components/util/linkedList"], fu
 
 		/**
 		 * Gets all segments currently in the stash
-		 * @returns {Array} array of MotionSegment
+		 * @returns {Array} array of Segment
 		 */
 		SegmentStash.prototype.getAllSegments = function() {
 
@@ -119,7 +119,7 @@ define(["angular", "components/util/fastMath", "components/util/linkedList"], fu
 
 		/**
 		 * Gets the last segment
-		 * @return {MotionSegment} last segment in the list
+		 * @return {Segment} last segment in the list
 		 */
 		SegmentStash.prototype.lastSegment = function() {
 			if (this.segmentsList.tail)
@@ -143,7 +143,7 @@ define(["angular", "components/util/fastMath", "components/util/linkedList"], fu
 		/**
 		 * Find segment within the stash that starts with the specified time
 		 * @param  {Number} initialTime initial time
-		 * @return {MotionSegment}             segment that starts with the specified initial time
+		 * @return {Segment}             segment that starts with the specified initial time
 		 */
 		SegmentStash.prototype.findSegmentWithInitialTime = function(initialTime) {
 
@@ -169,7 +169,7 @@ define(["angular", "components/util/fastMath", "components/util/linkedList"], fu
 
 		SegmentStash.prototype.initializeWithSegments = function(segments) {
 			if (!Array.isArray(segments))
-				throw new Error("expecting an array of MotionSegments");
+				throw new Error("expecting an array of Segments");
 
 			this.clearAllSegments();
 

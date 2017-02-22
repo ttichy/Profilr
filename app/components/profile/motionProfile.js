@@ -13,10 +13,11 @@ define(["angular",
 	"components/segments/segmentStash",
 	"components/util/fastMath",
 	"components/profile/profileHelper",
-	"components/segments/accelSegment"
+	"components/segments/accelSegment",
+	"components/segments/loadSegment"
 ], function(angular,UndoManager) {
-	angular.module("myApp").factory('motionProfileFactory', ['AccelSegment','MotionSegment', 'SegmentStash', 'FastMath', 'ProfileHelper',
-		function(AccelSegment,MotionSegment, SegmentStash, fastMath, profileHelper) {
+	angular.module("myApp").factory('motionProfileFactory', ['AccelSegment','LoadSegment','MotionSegment', 'SegmentStash', 'FastMath', 'ProfileHelper',
+		function(AccelSegment,LoadSegment,MotionSegment, SegmentStash, fastMath, profileHelper) {
 
 
 			/*
@@ -35,6 +36,12 @@ define(["angular",
 					this.ProfileType = "linear";
 
 				this.undoManager = new UndoManager();
+
+
+				// profile loads
+				this.frictionLoads = SegmentStash.makeStash();
+				this.loads = SegmentStash.makeStash();
+				this.thrusts = SegmentStash.makeStash();
 
 
 				MotionSegment.MotionSegment.call(this);
@@ -320,6 +327,13 @@ define(["angular",
 				return new MotionProfile(type);
 			};
 
+
+			/**
+			 * Creates accel segment
+			 * @param  {string} type    absolute or incremental
+			 * @param  {Object} segment segment data from the user
+			 * @return {AccelSegment}         newly created acceleration segment
+			 */
 			factory.createAccelSegment=function(type, segment) {
 				if(!type)
 					throw new Error('Need type of segment to create');
@@ -346,6 +360,12 @@ define(["angular",
 				}
 
 			};
+
+
+			factory.createLoadSegment = function(type, t0, tf, initialLoad, finalLoad) {
+				return LoadSegment.createLoadSegment(type,t0,tf,initialLoad,finalLoad);
+			};
+
 
 
 			return factory;

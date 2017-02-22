@@ -1,7 +1,7 @@
 "use strict";
 // get app reference
 define(["angular", "components/segments/segmentStash"], function(angular) {
-	angular.module("myApp").factory('LoadSegment', ['FastMath', 'Polynomial', function(fastMath, polynomialFactory) {
+	angular.module("myApp").factory('LoadSegment', ['FastMath', 'Polynomial','SegmentFactory', function(fastMath, polynomialFactory,Segment) {
 
 
 		var LinearLoadsEnum = Object.freeze({"FRICTION_COEFF":1, "MASS":2, "FORCE":3});
@@ -17,10 +17,9 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 		 */
 		var LoadSegment = function(type, t0, tf, initVal, finalVal) {
 
-			this.initialTime = t0;
-			this.finalTime = tf;
 
-			this.id = this.generateId();
+			Segment.Segment.call(this,t0,tf);
+
 
 			var slope = (finalVal - initVal)/(tf-t0);
 			var iSect = initVal - slope*t0 + slope*t0;
@@ -30,23 +29,14 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 
 		};
 
+
+		LoadSegment.prototype = Object.create(Segment.Segment.prototype);
+		LoadSegment.prototype.constructor = LoadSegment;
+
+
+
 		LoadSegment.prototype.evaluateLoadAt = function(x) {
 			return this.loadPoly.evaluateAt(x);
-		};
-
-
-		/**
-		 * Generate unique id 
-		 */
-		LoadSegment.prototype.generateId = function() {
-
-			var mSec = (new Date()).getTime().toString();
-			var rnd = Math.floor(Math.random() * 10000).toString();
-
-			var idStr = mSec + rnd;
-
-			return parseInt(idStr, 10);
-
 		};
 
 
