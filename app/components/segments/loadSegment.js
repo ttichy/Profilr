@@ -20,6 +20,8 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 
 			Segment.Segment.call(this,t0,tf);
 
+			this.type=type;
+
 
 			var slope = (finalVal - initVal)/(tf-t0);
 			var iSect = initVal - slope*t0 + slope*t0;
@@ -39,6 +41,18 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 			return this.loadPoly.evaluateAt(x);
 		};
 
+
+		/**
+		 * Check if load type is valid for a linear profile
+		 * @param  {string}  type load type
+		 * @return {Boolean}      true if load type valid 
+		 */
+		LoadSegment.prototype.isValidType = function(profileType,type) {
+			if(profileType==="linear")
+				return LinearLoadsEnum[type];
+			else
+				return RotaryLoadsEnum[type];
+		};
 
 
 		var factory = {};
@@ -65,6 +79,7 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 
 		factory.LinearLoadsEnum = LinearLoadsEnum;
 		factory.RotaryLoadsEnum = RotaryLoadsEnum;
+		factory.LoadSegment=LoadSegment;
 
 		return factory;
 

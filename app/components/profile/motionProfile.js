@@ -35,15 +35,24 @@ define(["angular",
 				if (type === "linear")
 					this.ProfileType = "linear";
 
+				
+				//create object to hold all the profile loads
+				var loads = {};
+
+				if(this.ProfileType==="linear"){
+					Object.keys(LoadSegment.LinearLoadsEnum).forEach(function(load){
+						loads[load]=SegmentStash.makeStash();
+					});
+				}
+				else {
+					Object.keys(LoadSegment.RotaryLoadsEnum).forEach(function (load) {
+						loads[load]=SegmentStash.makeStash();
+					});
+				}
+
+				this.profileLoads=loads;
+				
 				this.undoManager = new UndoManager();
-
-
-				// profile loads
-				this.frictionLoads = SegmentStash.makeStash();
-				this.loads = SegmentStash.makeStash();
-				this.thrusts = SegmentStash.makeStash();
-
-
 				MotionSegment.MotionSegment.call(this);
 			};
 
@@ -57,7 +66,7 @@ define(["angular",
 			 * @param {Number} position position in [rad] or [m]
 			 * @param {Number} velocity velocity in [rad/s] or [m/s]
 			 */
-			MotionProfile.prototype.setInitialConditions = function(position, velocity, loadMass, appliedForce, friction) {
+			MotionProfile.prototype.setInitialConditions = function(position, velocity, load, thrust, friction) {
 				this.initialPosition = position;
 				this.initialVelocity = velocity;
 
@@ -320,6 +329,104 @@ define(["angular",
 	        };
 
 
+			MotionProfile.prototype.createLoadSegment = function(type, t0, tf, initialLoad, finalLoad) {
+	        	if(!LoadSegment.LoadSegment.prototype.isValidType(this.ProfileType,type))
+	        			throw new Error("Load type '"+type+"' is not valid for "+this.ProfileType +" profiles");
+
+				return LoadSegment.createLoadSegment(type,t0,tf,initialLoad,finalLoad);
+			};
+
+			/**
+			 * Adds a load segment to the profile
+			 * @param {LoadSegment} loadSegment load segment to be added
+			 */
+	        MotionProfile.prototype.addLoadSegment = function(loadSegment) {
+
+
+	           	// insert or append
+	           	if(this.profileLoads[loadSegment.type].findOverlappingSegment(loadSegment.initialTime, loadSegment.finalTime))
+	        		throw new Error("New segment overlaps an existing segment");
+
+	        	// find previous segment. Needed in case of insertion
+	        	var prevSegment = this.profileLoads[loadSegment.type].getPreviousByInitialTime(loadSegment.t0);
+	        	var prevId=null;
+	        	if(prevSegment)
+	        		prevId=prevSegment.id;
+
+
+
+	        	if(this.profileLoads[loadSegment.type].countSegments()===0) {
+	        		this.profileLoads[loadSegment.type].insertAt(loadSegment,prevId);
+	        		return;
+	        	}
+				
+				throw new Error("Currently, only one segment per type can be added");
+
+
+	        };
+
+
+	        /**
+	         * Deletes load segment identified by segmentId, optionally uses type to identify load type
+	         * @param  {Number} segmentId identfies segment
+	         * @param  {string} type      load type
+	         * @return {LoadSegment}           deleted load segment
+	         */
+	        MotionProfile.prototype.deleteLoadSegment = function(segmentId, type) {
+	        	
+	        	// passing  type is optional, but helpful
+	        	if(type) {
+	        		if(!this.profileLoads[type])
+	        			throw new Error("load type '"+type+"' doesn't appear to be a valid load segment type");
+	        		return this.profileLoads[type].delete(segmentId);
+	        	}
+
+	        	var deletedSegment;
+
+	        	var that=this;
+	        	// type was not passed, have to check all types
+	        	Object.keys(this.profileLoads).some(function(t) {
+	        		deletedSegment=that.profileLoads[t].delete(segmentId);
+	        		return deletedSegment !== null;
+	        	});
+
+	        	return deletedSegment;
+
+	        };
+
+	        MotionProfile.prototype.modifyLoadSegment = function(segmentId, newSegmentData) {
+	        	
+	        	if(!newSegmentData.type)
+	        		throw new Error("Expecting new segment to have type");
+
+	        	//forcing new segment to be the same type as old segment
+	        	var segment = this.profileLoads[newSegmentData.type].findById(segmentId);
+	            if (!segment)
+	                throw new Error("Unable to find segment with id " + segmentId+".. is it of the same type as the old one?");
+
+	            this.profileLoads[newSegmentData.type].delete(segmentId);
+
+	            this.addLoadSegment(newSegmentData);
+
+
+	        };
+
+
+	        /**
+	         * Returns all load segments present in the motion profile of the specified type
+	         * @param  {string} type Load type
+	         * @return {Array}      array of load segments of specified type
+	         */
+	        MotionProfile.prototype.getAllLoadSegments = function(type) {
+	        	if(!this.profileLoads[type])
+	        		throw new Error("load type '"+type+"' doesn't appear to be a valid load segment type");
+
+
+	        	return this.profileLoads[type].getAllSegments();
+
+	        };
+
+
 			var factory = {};
 
 
@@ -362,9 +469,6 @@ define(["angular",
 			};
 
 
-			factory.createLoadSegment = function(type, t0, tf, initialLoad, finalLoad) {
-				return LoadSegment.createLoadSegment(type,t0,tf,initialLoad,finalLoad);
-			};
 
 
 

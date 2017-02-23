@@ -166,6 +166,71 @@ define(["angular", "components/util/fastMath", "components/util/linkedList"], fu
 
 		};
 
+		/**
+		 * Finds segment that has initialTime or finalTime inside of it
+		 * @param  {Number} initialTime     [description]
+		 * @param  {Number} finalTime       [description]
+		 * @return {Segment}            	 found segment
+		 */
+		SegmentStash.prototype.findOverlappingSegment = function(initialTime,finalTime) {
+			
+			var currentNode = this.segmentsList.head;
+
+
+			// 2nd use-case: a valid position
+			while (currentNode) {
+
+				//case 1 - new segment final time falls into an existing segment
+				if (FastMath.gt(finalTime, currentNode.data.initialTime) && 
+					FastMath.leq(finalTime,currentNode.data.finalTime))
+					return currentNode.data;
+
+				//case 2 - new segment initial time falls into an existing segment
+				if (FastMath.geq(initialTime, currentNode.data.initialTime) && 
+					FastMath.lt(initialTime,currentNode.data.finalTime))
+					return currentNode.data;	
+
+				//case 3 - new segment fully envelopes an existing segment
+				if(FastMath.geq(initialTime,currentNode.data.initialTime) &&
+					FastMath.leq(finalTime,currentNode.data.finalTime))
+					return currentNode.data;
+
+				//case 4 - new segment falls within an existing segment
+				if(FastMath.leq(initialTime,currentNode.data.initialTime) &&
+					FastMath.geq(finalTime,currentNode.data.finalTime))
+					return currentNode.data;
+
+				currentNode = currentNode.next;
+			}
+
+
+			return null;
+		};
+
+
+		/**
+		 * Finds previous segment using initial time
+		 * @param  {Number} t0 initial time
+		 * @return {Segment}    previous segment
+		 */
+		SegmentStash.prototype.getPreviousByInitialTime = function(t0){
+			var currentNode = this.segmentsList.head;
+
+
+			// 2nd use-case: a valid position
+			while (currentNode) {
+
+
+				if (FastMath.leq(t0, currentNode.data.finalTime))
+					return currentNode.data;
+
+				currentNode = currentNode.next;
+			}
+
+
+			return null;
+		};
+
 
 		SegmentStash.prototype.initializeWithSegments = function(segments) {
 			if (!Array.isArray(segments))
