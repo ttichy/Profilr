@@ -357,10 +357,23 @@ define(["angular",
 
 	        	if(this.profileLoads[loadSegment.type].countSegments()===0) {
 	        		this.profileLoads[loadSegment.type].insertAt(loadSegment,prevId);
-	        		return;
 	        	}
-				
-				throw new Error("Currently, only one segment per type can be added");
+				else				
+					throw new Error("Currently, only one segment per type can be added");
+
+
+				//undo / redo
+				var profile=this;
+				this.undoManager.add({
+			        undo: function() {
+			            profile.deleteLoadSegment(loadSegment.id,loadSegment.type);
+			        },
+			        redo: function() {
+			            profile.addLoadSegment(loadSegment);
+			        }
+			    });
+
+
 
 
 	        };
@@ -390,6 +403,17 @@ define(["angular",
 	        		return deletedSegment !== null;
 	        	});
 
+				//undo / redo
+				var profile=this;
+				this.undoManager.add({
+			        undo: function() {
+			            profile.addLoadSegment(deletedSegment);
+			        },
+			        redo: function() {
+			            profile.deleteLoadSegment(segmentId,type);
+			        }
+			    });
+
 	        	return deletedSegment;
 
 	        };
@@ -407,6 +431,18 @@ define(["angular",
 	            this.profileLoads[newSegmentData.type].delete(segmentId);
 
 	            this.addLoadSegment(newSegmentData);
+
+				//undo / redo
+				var profile=this;
+				this.undoManager.add({
+			        undo: function() {
+			            profile.deleteLoadSegment(newSegmentData.id);
+			            profile.addLoadSegment(segment, segment.type);
+			        },
+			        redo: function() {
+			            profile.modifyLoadSegment(segmentId,newSegmentData);
+			        }
+			    });	            
 
 
 	        };

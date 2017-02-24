@@ -221,7 +221,89 @@ define(["angularMocks", "components/segments/loadSegment"], function() {
 
 
     });      
+    
 
+    it('should be able to undo/redo adding a load segment', function() {
+
+      var profile = motionProfileFactory.createMotionProfile("rotary");
+
+      var loadSeg1=profile.createLoadSegment("FRICTION",0,2,1,1);
+
+      profile.addLoadSegment(loadSeg1);
+      var loadSegs = profile.getAllLoadSegments("FRICTION");
+
+      //should be able to get the same segment back
+      expect(loadSegs[0]).toBe(loadSeg1);     
+      
+      //now UNDO
+      profile.undo();
+      loadSegs = profile.getAllLoadSegments("FRICTION");
+
+      // should be empty
+      expect(loadSegs.length).toBe(0);
+
+
+      profile.redo();
+      loadSegs = profile.getAllLoadSegments("FRICTION");
+
+
+      //should be able to get the same segment back
+      expect(loadSegs[0]).toBe(loadSeg1);  
+
+    });
+
+    it('should be able to undo/redo deleting a load segment', function() {
+
+      var profile = motionProfileFactory.createMotionProfile("rotary");
+
+      var loadSeg1=profile.createLoadSegment("FRICTION",0,2,1,1);
+
+      profile.addLoadSegment(loadSeg1);
+      var loadSegs = profile.getAllLoadSegments("FRICTION");
+
+      //should be able to get the same segment back
+      expect(loadSegs[0]).toBe(loadSeg1);     
+
+      profile.deleteLoadSegment(loadSeg1.id);
+      // should have no load segment
+      expect(profile.getAllLoadSegments("FRICTION").length).toBe(0);
+      
+      //now UNDO
+      profile.undo();
+      expect(profile.getAllLoadSegments("FRICTION")[0]).toBe(loadSeg1);
+
+      // REDO
+      profile.redo();
+      expect(profile.getAllLoadSegments("FRICTION").length).toBe(0);
+
+    });    
+
+
+    it('should be able to undo/redo modifying a load segment', function() {
+
+      var profile = motionProfileFactory.createMotionProfile("rotary");
+
+      var loadSeg1=profile.createLoadSegment("FRICTION",0,2,1,1);
+
+      profile.addLoadSegment(loadSeg1);
+      var loadSegs = profile.getAllLoadSegments("FRICTION");
+
+      //should be able to get the same segment back
+      expect(loadSegs[0]).toBe(loadSeg1);     
+
+
+      var changedSegment = profile.createLoadSegment("FRICTION",0,2,2,2);
+      profile.modifyLoadSegment(loadSeg1.id,changedSegment);
+      expect(profile.getAllLoadSegments("FRICTION")[0]).toBe(changedSegment);
+
+      profile.undo();
+      expect(profile.getAllLoadSegments("FRICTION")[0]).toBe(loadSeg1);
+
+      profile.redo();
+      expect(profile.getAllLoadSegments("FRICTION")[0]).toBe(changedSegment);      
+      
+
+    }); 
 
 
 
