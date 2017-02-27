@@ -74,6 +74,12 @@ define(['angular','app'],
 						prev.next = node;
 						node.previous = prev;
 					}
+					else {
+						// if there is not a previous node, we are inserting a new first node, thus 
+						// head must be modified
+						this.head=node;
+					}
+
 
 					this._length++;
 					return node;

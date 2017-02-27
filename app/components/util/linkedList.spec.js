@@ -41,6 +41,33 @@ it("Should add 2 nodes successfully", function() {
 
   });
 
+it("Should add a node in front of the first node successfully", function() {
+
+    var list = linkedList.makeLinkedList();
+    expect(list).not.toBe(null);
+
+    var data1 = {
+      "data1": 1
+    };
+    var data2 = {
+      "data2": 2
+    };
+
+    var data1p5 = {
+      "data1.5": 1.5
+    };
+
+    var node=list.add(data1);
+
+    list.insertAt(node,data1p5);
+
+    expect(list.length()).toBe(2);
+    expect(list.searchNodeAt(1).data).toBe(data1p5);
+    expect(list.searchNodeAt(2).data).toBe(data1);
+
+
+  });
+
 
   it("Should add 2 nodes and insert 3rd in the middle", function() {
 

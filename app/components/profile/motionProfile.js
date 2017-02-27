@@ -146,8 +146,15 @@ define(["angular",
 				//need to get final values of previous segment
 				var prev = this.segments.getPreviousSegment(segmentId);
 
-				//modify the segment being inserted to make sure initial values == previous segment's final values
-				var lastValues = prev.getFinalValues();
+				var lastValues;
+
+				if(prev!==null)
+					//modify the segment being inserted to make sure initial values == previous segment's final values
+					lastValues = prev.getFinalValues();
+				else{
+					lastValues = [0,0,this.initialVelocity,this.initialPosition];
+				}
+
 				segment.modifyInitialValues(lastValues[0], lastValues[1], lastValues[2], lastValues[3]);
 
 				var newSegment = this.segments.insertAt(segment, segmentId);

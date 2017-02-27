@@ -255,9 +255,31 @@
                 //also, the profile needs to be valid
                 expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
 
-
-
             });
+
+
+            it('should insert a segment before an existing first segment', function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 10, 0.5);
+
+                profile.appendSegment(accelSegment1);
+
+                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(0, 1, 10, 10, 0, 0.5);
+
+
+                profile.insertSegment(accelSegment2, accelSegment1.id);
+
+                //after inserting, there should be 3 segments total
+                expect(profile.getAllSegments().length).toBe(2);
+
+                var allBasicSegments = profile.getAllBasicSegments();
+
+                //also, the profile needs to be valid
+                expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
+
+            });            
 
 
             it("should be able to find parent segment via its child segment id", function() {
