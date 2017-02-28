@@ -1,7 +1,9 @@
 "use strict";
 // get app reference
 define(["angular", "components/segments/motionSegment", "components/segments/basicSegment", "components/util/fastMath"], function(angular) {
-	angular.module("myApp").factory('IndexSegment', ['MotionSegment', 'basicSegmentFactory', 'FastMath', function(MotionSegment, basicSegmentFactory, fastMath) {
+	angular.module("myApp").
+	factory('IndexSegment', ['MotionSegment', 'basicSegmentFactory', 'AccelSegment','FastMath',
+	 function(MotionSegment, basicSegmentFactory, AccelSegment,fastMath) {
 
 		var factory = {};
 
@@ -222,7 +224,8 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			// accel segment
 			var nextPosition;
 			if (acc_time > 0) {
-				outputSegs = [].concat(outputSegs, accelBasicSegments(t0, t0+acc_time, p0, v, vmax, accJerk));
+				outputSegs = [].concat(outputSegs,
+				 AccelSegment.calculateTimeVelocityBasicSegments(t0, t0+acc_time, p0, v, vmax, accJerk));
 				nextPosition = outputSegs[outputSegs.length-1].evaluatePositionAt(t0+acc_time);
 			} else {
 				nextPosition = p0;
@@ -235,78 +238,13 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			}
 
 			// decel segment
-			outputSegs = [].concat(outputSegs, accelBasicSegments(t0+acc_time+coast_time, tf, nextPosition, vmax, v, decJerk));
+			outputSegs = [].concat(outputSegs,
+			 AccelSegment.calculateTimeVelocityBasicSegments(t0+acc_time+coast_time, tf, nextPosition, vmax, v, decJerk));
 
 			// console.log(outputSegs);
 			return outputSegs;
 		};
 
-
-		// I TOTALLY STOLE THIS CODE FROM ACCELSEGMENT.JS ACCELSEGMENTTIMEVELOCITY.PROTOTYPE.CALCULATEBASICSEGMENTS
-		var accelBasicSegments = function(t0, tf, p0, v0, vf, jPct) {
-			var basicSegment, basicSegment2, basicSegment3;
-			var accelSegment;
-			var coeffs, coeffs1, coeffs2, coeffs3, coeffs4;
-
-			if ((tf-t0) <= 0) {
-				return [];
-			}
-
-			if (jPct === 0) {
-				// consists of one basic segment
-				coeffs = [0, 0.5 * (vf - v0) / (tf - t0), v0, p0];
-
-				basicSegment = basicSegmentFactory.CreateBasicSegment(t0, tf, coeffs);
-
-				return [basicSegment];
-			}
-
-			var aMax;
-			var jerk;
-			var th;
-
-			if (jPct == 1) {
-				// two basic segments
-
-				// th - duration of half the accel segment
-				th = (tf - t0) / 2;
-				aMax = (vf - v0) / th;
-				jerk = aMax / th;
-
-				coeffs1 = [jerk / 6, 0, v0, p0];
-
-				basicSegment = basicSegmentFactory.CreateBasicSegment(t0, t0 + th, coeffs1);
-
-				coeffs2 = [basicSegment.evaluatePositionAt(t0 + th), basicSegment.evaluateVelocityAt(t0 + th), aMax / 2, -jerk / 6];
-
-				basicSegment2 = basicSegmentFactory.CreateBasicSegment(t0 + th, tf, coeffs2);
-
-				return [basicSegment, basicSegment2];
-			}
-
-			// last case is three basic segments
-
-			var td1; //duration of first and third segments
-			var tdm; //duration of the middle segment
-			td1 = 0.5 * jPct * (tf - t0);
-			tdm = tf - t0 - 2 * (td1);
-
-			//calculate max accel by dividing the segment into three chunks
-			// and using the fact that (vf-v0) equals area under acceleration
-			aMax = (vf - v0) / (td1 + tdm);
-			jerk = aMax / td1;
-
-			coeffs1 = [jerk / 6, 0, v0, p0];
-			basicSegment = basicSegmentFactory.CreateBasicSegment(t0, t0 + td1, coeffs1);
-
-			coeffs2 = [0, aMax / 2, basicSegment.evaluateVelocityAt(t0 + td1), basicSegment.evaluatePositionAt(t0 + td1)]; // middle segment has no jerk
-			basicSegment2 = basicSegmentFactory.CreateBasicSegment(t0 + td1, t0 + td1 + tdm, coeffs2);
-
-			coeffs3 = [-jerk / 6, aMax / 2, basicSegment2.evaluateVelocityAt(t0 + td1 + tdm), basicSegment2.evaluatePositionAt(t0 + td1 + tdm)];
-			basicSegment3 = basicSegmentFactory.CreateBasicSegment(t0 + td1 + tdm, tf, coeffs3);
-
-			return [basicSegment, basicSegment2, basicSegment3];
-		};
 
 
 		/**

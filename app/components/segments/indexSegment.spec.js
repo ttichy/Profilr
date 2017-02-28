@@ -19,7 +19,6 @@ define(["angularMocks", "components/segments/indexSegment"], function() {
 
             var allSegs = seg.getAllSegments();
 
-
             expect(allSegs.length).toBe(7);
 
             var seg1 = allSegs[0];
