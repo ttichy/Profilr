@@ -126,17 +126,17 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 				initialTime: t0,
 				finalTime: tf,
 				duration: tf-t0,
-				velocity: v,
+				initalVelocity: v,
+				finalVelocity: v,
 				initialPosition: p0,
 				finalPosition: pf,
-				positionChange: pf-p0,
 				velLimNeg: velLimNeg,
 				velLimPos: velLimPos,
 				accJerk: accJerk,
 				decJerk: decJerk,
-				shape: shape,
 				xSkew: xSkew,
-				ySkew: ySkew
+				ySkew: ySkew,
+				shape: shape
 			};
 
 			var basicSegments = this.calculateBasicSegments(t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape);
@@ -323,10 +323,11 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			var pf;
 			if (this.segmentData.mode === "incremental") {
 				tf = t0 + this.segmentData.duration;
-				pf = p0 + this.segmentData.positionChange;
+				pf = p0 + this.segmentData.finalPosition - this.segmentData.initialPosition;
 			} else {
 				tf = this.segmentData.finalTime;
 				pf = this.segmentData.finalPosition;
+				this.segmentData.duration = tf-t0;
 
 			if (fastMath.lt(this.segmentData.duration, 0))
 					throw new Error('tried to move initial time past final time for absolute segment');

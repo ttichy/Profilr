@@ -908,7 +908,7 @@ define(["angularMocks",
 
             var allSegs = profile.getAllSegments();
             // console.log(profile);
-            // console.log(allSegs);
+            console.log(allSegs);
 
             expect(profile.segments.countSegments()).toBe(2);
             expect(allSegs[0].EvaluateVelocityAt(0.8)).toBeCloseTo(0.3430342, 4);
