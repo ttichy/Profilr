@@ -279,7 +279,7 @@
                 //also, the profile needs to be valid
                 expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
 
-            });            
+            });
 
 
             it("should be able to find parent segment via its child segment id", function() {
@@ -850,6 +850,78 @@
         it("should be able to add a load segment to the motion profile", function() {
 
         });
+
+        it('should be able to append an index segment to an empty profile, then delete it', function () {
+            var profile = motionProfileFactory.createMotionProfile('linear');
+
+            //(t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode) {
+            var indexSeg = indexSegmentFactory.Make(0, 1.25048, 0, 0.154, 0, null, null, 0.2, 1, null, null, 'trapezoid', 'incremental');
+
+            expect(indexSeg.getAllSegments().length).toBe(6);
+
+            profile.appendSegment(indexSeg);
+
+            var sameSeg = profile.getAllSegments()[0];
+
+            expect(sameSeg).toBe(indexSeg);
+
+            profile.deleteSegment(sameSeg.id);
+
+            expect(profile.getAllSegments().length).toBe(0);
+
+            profile.undo();
+
+            expect(profile.getAllSegments().length).toBe(1);
+            expect(profile.getAllSegments()[0]).toBe(indexSeg);
+
+            profile.redo();
+
+            expect(profile.getAllSegments().length).toBe(0);
+
+            profile.undo();
+            var sameSeg2 = profile.getAllSegments()[0];
+
+            expect(indexSeg).toBe(sameSeg2);
+        });
+
+        it('should be able to insert an accel segment before an index segment', function () {
+            var profile = motionProfileFactory.createMotionProfile('rotary');
+
+            //(t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode) {
+            var indexSeg = indexSegmentFactory.Make(0, 1.25048, 0, 0.154, 0, null, null, 0.2, 1, null, null, 'trapezoid', 'incremental');
+
+            expect(indexSeg.getAllSegments().length).toBe(6);
+
+            profile.appendSegment(indexSeg);
+
+            var firstIndexSeg = profile.getAllSegments()[0];
+            expect(firstIndexSeg.EvaluatePositionAt(0.47988481)).toBeCloseTo(0.0501486, 4);
+            expect(firstIndexSeg.EvaluateVelocityAt(0.6)).toBeCloseTo(0.184729, 4);
+            expect(firstIndexSeg.getAllSegments()[4].evaluateVelocityAt(0.992956)).toBeCloseTo(0.1307183, 4);
+            expect(firstIndexSeg.EvaluateVelocityAt(0.992956)).toBeCloseTo(0.1307183, 4);
+
+            expect(profile.getAllSegments().length).toBe(1);
+            var accSeg = accelSegmentFactory.MakeFromTimeDistance(0, 1.57, 0, 0, 0.526, 0.4, 'incremental');
+            profile.insertSegment(accSeg, indexSeg.id);
+            expect(profile.segments.countSegments()).toBe(2);
+
+            var allSegs = profile.getAllSegments();
+
+            expect(allSegs.length).toBe(2);
+            console.log(profile.getAllSegments()[0].initialTime);
+
+
+            // var allSegs = profile.getAllSegments();
+            // console.log(profile);
+            // console.log(allSegs);
+
+            // expect(profile.segments.countSegments()).toBe(2);
+            // expect(allSegs[0].EvaluateVelocityAt(0.8)).toBeCloseTo(0.3430342, 4);
+            // expect(allSegs[1].EvaluateVelocityAt(2.206)).toBeCloseTo(-0.15030278, 4);
+
+        });
+
+
 
 
     });
