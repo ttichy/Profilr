@@ -131,7 +131,6 @@ define(["angular",
 			 * @returns {MotionSegment} existing segment or null if none found
 			 */
 			MotionProfile.prototype.getExistingSegment = function(initialTime) {
-
 				return this.segments.findSegmentWithInitialTime(initialTime);
 			};
 
@@ -178,8 +177,7 @@ define(["angular",
 			        }
 			    });
 
-
-
+			    return segment;
 			};
 
 			/**
@@ -212,6 +210,8 @@ define(["angular",
 			            profile.appendSegment(segment);
 			        }
 			    });
+
+			    return segment;
 			};
 
 
@@ -299,7 +299,6 @@ define(["angular",
 
 	            var modified = segment.modifySegmentValues(newSegmentData, initialConditions);
 
-
 	            //undo / redo
 				var profile=this;
 				this.undoManager.add({
@@ -311,9 +310,7 @@ define(["angular",
 			        }
 			    });
 
-
 	            return modified;
-
 	        };
 
 
@@ -519,12 +516,9 @@ define(["angular",
 
 				 // function(t0, tf, p0, dp, v, velLimPos, velLimNeg, accJerkPct, decJerkPct, xSkew, ySkew, shape, mode)
 				return IndexSegment.MakeIndexSegment(segment.t0, segment.tf, segment.p0, segment.dp, segment.v0, segment.velLimPos, segment.velLimNeg, segment.accJerkPct, segment.decJerkPct, segment.xSkew, segment.ySkew, segment.shape, segment.mode);
-
 			}
 
-
 			return factory;
-
 		}
 	]);
 });

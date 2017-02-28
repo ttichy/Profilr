@@ -35,7 +35,6 @@ define(["angularMocks",
             expect(profile.getAllBasicSegments.length).toBe(0);
         });
 
-
         it('should create an empty linear profile', function() {
 
             var profile = motionProfileFactory.createMotionProfile("linear");
@@ -44,8 +43,6 @@ define(["angularMocks",
             expect(profile.getAllBasicSegments.length).toBe(0);
         });
 
-
-
         it('should correctly delete an accel segment that is the last segment', function() {
 
             var profile = motionProfileFactory.createMotionProfile("rotary");
@@ -53,8 +50,6 @@ define(["angularMocks",
             var accelSegment = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 10, 0.5);
 
             profile.appendSegment(accelSegment);
-
-
 
             accelSegment = accelSegmentFactory.MakeFromTimeVelocity(2, 3, 0, 0, 7.5, 0.5);
 
@@ -65,7 +60,6 @@ define(["angularMocks",
             var segments = profile.getAllSegments();
 
             expect(segments.length).toBe(1);
-
 
             var seg0 = segments[0];
             expect(seg0.initialTime).toBe(0);
@@ -86,12 +80,9 @@ define(["angularMocks",
 
             profile.appendSegment(accelSegment);
 
-
-
             var accelSegmentDelete = accelSegmentFactory.MakeFromTimeVelocity(2, 3, 0, 0, 7.5, 0.5);
 
             profile.appendSegment(accelSegmentDelete);
-
 
             accelSegment = accelSegmentFactory.MakeFromTimeVelocity(3, 5, 0, 0, 3, 0.5);
 
@@ -101,13 +92,11 @@ define(["angularMocks",
 
             profile.appendSegment(accelSegment);
 
-
             profile.deleteSegment(accelSegmentDelete.id);
 
             var segments = profile.getAllSegments();
 
             expect(segments.length).toBe(3);
-
 
             var seg0 = segments[0];
             expect(seg0.initialTime).toBe(0);
@@ -116,11 +105,7 @@ define(["angularMocks",
 
             //also, the profile needs to be valid
             expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
-
-
-
         });
-
 
         it('should correctly delete an accel segment the first segment', function() {
 
@@ -130,12 +115,9 @@ define(["angularMocks",
 
             profile.appendSegment(accelSegmentDelete);
 
-
-
             var accelSegment = accelSegmentFactory.MakeFromTimeVelocity(2, 3, 0, 0, 7.5, 0.5);
 
             profile.appendSegment(accelSegment);
-
 
             accelSegment = accelSegmentFactory.MakeFromTimeVelocity(3, 5, 0, 0, 3, 0.5);
 
@@ -145,13 +127,11 @@ define(["angularMocks",
 
             profile.appendSegment(accelSegment);
 
-
             profile.deleteSegment(accelSegmentDelete.id);
 
             var segments = profile.getAllSegments();
 
             expect(segments.length).toBe(3);
-
 
             var seg0 = segments[0];
             expect(seg0.initialTime).toBe(0);
@@ -160,12 +140,7 @@ define(["angularMocks",
 
             //also, the profile needs to be valid
             expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
-
-
-
         });
-
-
 
         it('should correctly find existing segments with exact matches', function() {
 
@@ -187,7 +162,6 @@ define(["angularMocks",
 
         });
 
-
         it('should not find any segments before and after the existing profile segment range', function() {
 
             var profile = motionProfileFactory.createMotionProfile("rotary");
@@ -205,9 +179,7 @@ define(["angularMocks",
 
             existing = profile.getExistingSegment(3);
             expect(existing).toBe(null);
-
         });
-
 
         it('should find existing segments, even if initialTime is off by some number less than epsilon', function() {
 
@@ -227,9 +199,7 @@ define(["angularMocks",
 
             existing = profile.getExistingSegment(2 + fastMath.epsilon / 2);
             expect(existing).toBe(accelSegment2);
-
         });
-
 
         it('should insert a segment in between two other segments', function() {
 
@@ -257,7 +227,6 @@ define(["angularMocks",
 
         });
 
-
         it('should insert a segment before an existing first segment', function() {
 
             var profile = motionProfileFactory.createMotionProfile("rotary");
@@ -268,7 +237,6 @@ define(["angularMocks",
 
             var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(0, 1, 10, 10, 0, 0.5);
 
-
             profile.insertSegment(accelSegment2, accelSegment1.id);
 
             //after inserting, there should be 3 segments total
@@ -278,9 +246,7 @@ define(["angularMocks",
 
             //also, the profile needs to be valid
             expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
-
         });
-
 
         it("should be able to find parent segment via its child segment id", function() {
 
@@ -299,8 +265,6 @@ define(["angularMocks",
 
             profile.appendSegment(seg1);
 
-
-
             var allSegments = profile.getAllBasicSegments();
 
             var childSegment = allSegments[1];
@@ -308,11 +272,7 @@ define(["angularMocks",
             var parent = profile.findParentSegmentByChildId(childSegment.id);
 
             expect(parent).toBe(seg1);
-
-
-
         });
-
 
         it('appending a segment should match final conditions of the previous segment ', function() {
 
@@ -326,16 +286,11 @@ define(["angularMocks",
 
             profile.appendSegment(accelSegment2);
 
-
             var allBasicSegments = profile.getAllBasicSegments();
 
             //also, the profile needs to be valid
             expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
-
-
-
         });
-
 
         it("should be able to create segments via motionProfile accel segment function", function() {
 
@@ -349,20 +304,13 @@ define(["angularMocks",
                 vf: 5,
                 jPct: 0.5,
                 mode: "incremental"
-
             });
 
             profile.appendSegment(seg1);
 
-
-
             var allSegments = profile.getAllBasicSegments();
             expect(allSegments.length).toBe(3);
-
-
-
         });
-
 
         it("should be able to modify final position for AccelSegmentTimeDistance segment ", function() {
 
@@ -380,7 +328,6 @@ define(["angularMocks",
             });
 
             profile.appendSegment(seg1);
-
 
             var sameSeg = profile.getAllSegments()[0];
 
@@ -403,11 +350,7 @@ define(["angularMocks",
 
             expect(finalPos).toBe(2.5);
             expect(finalVel).toBe(2.5);
-
-
         });
-
-
 
         it("should be able to modify final time for AccelSegmentTimeDistance segment ", function() {
 
@@ -421,11 +364,9 @@ define(["angularMocks",
                 pf: 5,
                 jPct: 0.5,
                 mode: "incremental"
-
             });
 
             profile.appendSegment(seg1);
-
 
             var sameSeg = profile.getAllSegments()[0];
 
@@ -448,8 +389,6 @@ define(["angularMocks",
 
             expect(finalPos).toBe(5);
             expect(finalVel).toBe(10);
-
-
         });
 
         it("should be able to modify final time, final position and jerk for AccelSegmentTimeDistance segment ", function() {
@@ -464,11 +403,9 @@ define(["angularMocks",
                 pf: 5,
                 jPct: 0.5,
                 mode: "incremental"
-
             });
 
             profile.appendSegment(seg1);
-
 
             var sameSeg = profile.getAllSegments()[0];
 
@@ -493,10 +430,7 @@ define(["angularMocks",
 
             expect(finalPos).toBe(1.5);
             expect(finalVel).toBe(3);
-
-
         });
-
 
         it("should be able to modify final velocity for AccelSegmentTimeVelocity segment ", function() {
 
@@ -510,11 +444,9 @@ define(["angularMocks",
                 vf: 5,
                 jPct: 0.5,
                 mode: "incremental"
-
             });
 
             profile.appendSegment(seg1);
-
 
             var sameSeg = profile.getAllSegments()[0];
 
@@ -537,11 +469,7 @@ define(["angularMocks",
 
             expect(finalPos).toBe(2.5);
             expect(finalVel).toBe(2.5);
-
-
         });
-
-
 
         it("should be able to modify final velocity for AccelSegmentTimeVelocity segment using motionProfile function", function() {
 
@@ -555,11 +483,9 @@ define(["angularMocks",
                 vf: 5,
                 jPct: 0.5,
                 mode: "incremental"
-
             });
 
             profile.appendSegment(seg1);
-
 
             var sameSeg = profile.getAllSegments()[0];
 
@@ -573,7 +499,6 @@ define(["angularMocks",
                 velocity: 0
             });
 
-
             var finalValues = sameSeg.getFinalValues();
 
             expect(finalValues.length).toBe(4);
@@ -583,11 +508,7 @@ define(["angularMocks",
 
             expect(finalPos).toBe(2.5);
             expect(finalVel).toBe(2.5);
-
-
         });
-
-
 
         it("should be able to modify final velocity, duration and jerk for AccelSegmentTimeVelocity segment ", function() {
 
@@ -601,11 +522,9 @@ define(["angularMocks",
                 vf: 5,
                 jPct: 0.5,
                 mode: "incremental"
-
             });
 
             profile.appendSegment(seg1);
-
 
             var sameSeg = profile.getAllSegments()[0];
 
@@ -630,9 +549,6 @@ define(["angularMocks",
 
             expect(finalPos).toBeCloseTo(1.5, 0.8);
             expect(finalVel).toBe(2.5);
-
-
-
         });
 
         it('should be able to undo appending a segment ', function() {
@@ -660,7 +576,6 @@ define(["angularMocks",
             profile.undo();
             allSegments = profile.getAllSegments();
             expect(allSegments.length).toBe(0);
-
         });
 
         it('should be able to undo and redo appending segments ', function() {
@@ -700,9 +615,6 @@ define(["angularMocks",
             expect(allSegments.length).toBe(2);
             expect(allSegments[0]).toBe(accelSegment1);
             expect(allSegments[1]).toBe(accelSegment2);
-
-
-
         });
 
         it('should be able to undo and redo deleting segments ', function() {
@@ -720,12 +632,10 @@ define(["angularMocks",
             var allSegments = profile.getAllSegments();
             expect(allSegments.length).toBe(2);
 
-
             profile.deleteSegment(accelSegment2.id);
             profile.deleteSegment(accelSegment1.id);
 
             expect(profile.getAllSegments().length).toBe(0);
-
 
             profile.undo();
             profile.undo();
@@ -735,7 +645,6 @@ define(["angularMocks",
             expect(allSegments[0]).toBe(accelSegment1);
             expect(allSegments[1]).toBe(accelSegment2);
 
-
             profile.redo(); //redoing the second delete operation
             allSegments = profile.getAllSegments();
             expect(allSegments[0]).toBe(accelSegment1);
@@ -744,9 +653,6 @@ define(["angularMocks",
             //redoing the first delete operation, should have no segments
             allSegments = profile.getAllSegments();
             expect(allSegments.length).toBe(0);
-
-
-
         });
 
         it('should insert a segment in between two other segments, then undo and redo', function() {
@@ -783,10 +689,7 @@ define(["angularMocks",
             expect(allSegments[0]).toBe(accelSegment1);
             expect(allSegments[1]).toBe(accelSegment3);
             expect(allSegments[2]).toBe(accelSegment2);
-
-
         });
-
 
         it("should be able to modify final position and then undo and redo it", function() {
 
@@ -800,11 +703,9 @@ define(["angularMocks",
                 pf: 5,
                 jPct: 0.5,
                 mode: "incremental"
-
             });
 
             profile.appendSegment(seg1);
-
 
             var sameSeg = profile.getAllSegments()[0];
 
@@ -829,7 +730,6 @@ define(["angularMocks",
             expect(finalPos).toBe(2.5);
             expect(finalVel).toBe(2.5);
 
-
             //undo modify operation
             profile.undo();
 
@@ -839,14 +739,11 @@ define(["angularMocks",
 
             //back to the original
             expect(finalPos).toBe(5);
-
-
-
         });
 
-        // it("should be able to add a load segment to the motion profile", function() {
+        it("should be able to add a load segment to the motion profile", function() {
 
-        // });
+        });
 
         it('should be able to append an index segment to an empty profile, then delete it', function () {
             var profile = motionProfileFactory.createMotionProfile('linear');
@@ -907,13 +804,52 @@ define(["angularMocks",
             expect(allSegs.length).toBe(2);
 
             var allSegs = profile.getAllSegments();
-            // console.log(profile);
-            console.log(allSegs);
 
             expect(profile.segments.countSegments()).toBe(2);
             expect(allSegs[0].EvaluateVelocityAt(0.8)).toBeCloseTo(0.3430342, 4);
             expect(allSegs[1].EvaluateVelocityAt(2.206)).toBeCloseTo(-0.15030278, 4);
+        });
 
+        it('insert index segment between two accel segments (incremental and absolute)', function () {
+            var profile = motionProfileFactory.createMotionProfile('linear');
+            // (t0, tf, p0, v0, vf, jPct, mode, loads)
+            var accSeg1 = profile.appendSegment(accelSegmentFactory.MakeFromTimeVelocity(0, 1, 0, 0, 77, 0.12, 'incremental'));
+            // (t0, tf, p0, v0, pf, jPct, mode, loads)
+            var accSeg2 = profile.appendSegment(accelSegmentFactory.MakeFromTimeDistance(0, 12, 0, 77, 124, 0.5, 'absolute'));
+
+            // (t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode)
+            var indexSeg = profile.insertSegment(
+                indexSegmentFactory.Make(
+                    accSeg1.finalTime, // t0
+                    accSeg1.finalTime + 1.67, // tf
+                    accSeg1.EvaluatePositionAt(accSeg1.finalTime), //
+                    accSeg1.EvaluatePositionAt(accSeg1.finalTime) + 12,
+                    accSeg1.EvaluateVelocityAt(accSeg1.finalTime),
+                    null,
+                    null,
+                    0.1,
+                    0.5,
+                    0.3,
+                    0.27,
+                    'trapezoid',
+                    'incremental'
+                ), accSeg2.id
+            );
+
+            expect(indexSeg.finalTime).toBe(2.67);
+            expect(indexSeg.initialTime).toBe(accSeg1.finalTime);
+            expect(indexSeg.EvaluatePositionAt(indexSeg.finalTime)).toBeCloseTo(50.5);
+
+            expect(indexSeg.segmentData.p0).toBe(38.5);
+
+            var accSeg1Get = profile.getAllSegments()[2];
+            expect(accSeg1Get.initialTime).toBe(2.67);
+            expect(accSeg1Get.finalTime).toBe(12);
+            expect(accSeg1Get.EvaluatePositionAt(accSeg1Get.initialTime)).toBeCloseTo(50.5, 4);
+            expect(accSeg1Get.EvaluatePositionAt(accSeg1Get.finalTime)).toBeCloseTo(124, 4);
+            expect(accSeg1Get.segmentData.jerkPercent).toBe(0.5);
+            expect(accSeg1Get.EvaluatePositionAt(8.8)).toBeCloseTo(274.64365, 4);
+            expect(accSeg1Get.EvaluateVelocityAt(8.8)).toBeCloseTo(-21.0651, 4);
         });
     });
 });

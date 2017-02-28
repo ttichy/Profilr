@@ -151,19 +151,18 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 		/**
 		 * Calculates and creates the 1 to 7 basic segments that IndexSegment consists of
-		 * @param  {Number} t0   		initial time
-		 * @param  {Number} tf   		finalt time
-		 * @param  {Number} dp   		position change (can be negative)
-		 * @param  {Number} v    		start and end velocity
-		 * @param  {Number} velLimPos 	positive velocity limit (null/Inf if not applicable) <0,Inf>
-		 * @param  {Number} velLimNeg	negative velocity limit (null/-Inf if not applicable) <-Inf, 0>
-		 * @param  {Number} accJerk 	percent jerk applied to the first trapezoid <0,1>. This value applies to the first trapzeoid regardless of whether or not it is accel or decel.
-		 * @param  {Number} decJerk   	percent jerk applied to the second trapezoid <0,1>
-		 * @param  {String} shape		shape of the velocity profile ("trapezoid", "triangle")
-		 * @param  {Number} xSkew		time skew <-1,1>
-		 * @param  {Number} ySkew 		velocity skew <-1,1>
-		 * @param  {String} mode 		("incremental", "absolute"). incremental is default.
-		 * @return {Array}      Array of BasicSegment
+		 * @param  {Number} t0   		[initial time]
+		 * @param  {Number} tf   		[finalt time]
+		 * @param  {Number} dp   		[position change (can be negative)]
+		 * @param  {Number} v    		[start and end velocity]
+		 * @param  {Number} velLimPos 	[positive velocity limit (null/Inf if not applicable) <0,Inf>]
+		 * @param  {Number} velLimNeg	[negative velocity limit (null/-Inf if not applicable) <-Inf, 0>]
+		 * @param  {Number} accJerk 	[percent jerk applied to the first trapezoid <0,1>. This value applies to the first trapzeoid regardless of whether or not it is accel or decel.]
+		 * @param  {Number} decJerk   	[percent jerk applied to the second trapezoid <0,1>]
+		 * @param  {Number} xSkew		[time skew <-1,1>]
+		 * @param  {Number} ySkew 		[velocity skew <-1,1>]
+		 * @param  {String} shape		[shape of the velocity profile ("trapezoid", "triangle")]
+		 * @return {Array}				[Array of BasicSegment]
 		 */
 		IndexSegment.prototype.calculateBasicSegments = function(t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape) {
 
@@ -178,7 +177,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			}
 
 			/**
-			 * the xskew does NOT affect the size of the coast segment. it only affects how the accel time is split between the accel and decel curve
+			 * the xskew does NOT affect the size of the coast segment. it only affects how the total acceldecel time is split between the accel and decel curve
 			 */
 			if (xSkew == null)
 				xSkew = 0;
@@ -208,14 +207,10 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			var modifiedYSkew = 1-1/(1+ySkew);
 			var accdec_time = modifiedYSkew*dt*2;
 			var coast_time = dt-accdec_time;
-			// console.log('coast time', coast_time);
-			// console.log('accdec time', accdec_time);
-
 
 			// apply xSkew
 			var acc_time = accdec_time/2 * (1+xSkew);
 			var dec_time = dt - acc_time-coast_time;
-			// console.log(acc_time);
 
 			var outputSegs = [];
 
@@ -237,7 +232,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			// decel segment
 			outputSegs = [].concat(outputSegs, accelBasicSegments(t0+acc_time+coast_time, tf, nextPosition, vmax, v, decJerk));
 
-			// console.log(outputSegs);
 			return outputSegs;
 		};
 
@@ -364,20 +358,31 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 */
 		IndexSegment.prototype.modifySegmentValues = function(newSegmentData, initialConditions) {
 
-
 			if (newSegmentData.mode !== "absolute")
 				newSegmentData.mode = "incremental";
 
-			angular.merge(this.segmentData, newSegmentData);
+			this.segmentData.mode = newSegmentData.mode || this.segmentData.mode;
+			this.segmentData.initialTime = initialConditions.time || this.segmentData.initialTime;
+			this.segmentData.finalTime = newSegmentData.finalTime || this.segmentData.finalTime;
+			this.segmentData.initalVelocity = initialConditions.velocity || this.segmentData.initalVelocity;
+			this.segmentData.finalVelocity = initialConditions.velocity || this.segmentData.finalVelocity;
+			this.segmentData.initialPosition = initialConditions.position || this.segmentData.initialPosition;
+			this.segmentData.finalPosition = newSegmentData.finalPosition || this.segmentData.finalPosition;
+			this.segmentData.velLimNeg = newSegmentData.velLimNeg || this.segmentData.velLimNeg;
+			this.segmentData.velLimPos = newSegmentData.velLimPos || this.segmentData.velLimPos;
+			this.segmentData.accJerk = newSegmentData.accJerk || this.segmentData.accJerk;
+			this.segmentData.decJerk = newSegmentData.decJerk || this.segmentData.decJerk;
+			this.segmentData.xSkew = newSegmentData.xSkew || this.segmentData.xSkew;
+			this.segmentData.ySkew = newSegmentData.ySkew || this.segmentData.ySkew;
+			this.segmentData.shape = newSegmentData.shape || this.segmentData.shape;
 
-			this.finalTime = this.initialTime + this.segmentData.duration;
+			this.segmentData.duration = this.segmentData.finalTime - this.segmentData.initialTime;
 
-
-			var newBasicSegments = this.calculateBasicSegments(this.initialTime,
-				this.finalTime,
-				initialConditions.initialPosition,
-				initialConditions.finalPosition,
-				initialConditions.velocity,
+			var newBasicSegments = this.calculateBasicSegments(this.segmentData.initialTime,
+				this.segmentData.finalTime,
+				this.segmentData.initialPosition,
+				this.segmentData.finalPosition,
+				this.segmentData.initialVelocity,
 				this.segmentData.velLimPos,
 				this.segmentData.velLimNeg,
 				this.segmentData.accJerk,
@@ -390,20 +395,25 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segments.initializeWithSegments(newBasicSegments);
 
 			return this;
-
 		};
 
 
     	/**
 		 * Makes a new IndexMotionSegment given velocity information
-		 * @param {[type]} t0 [initial time]
-		 * @param {[type]} tf [final time]
-		 * @param {[type]} p0 [initial position]
-		 * @param {[type]} v0 [final position]
-		 * @param {[type]} vf [final velocity]
-		 * @param {[type]} jPct  [jerk as a percent of time]
-		 * @param {string} mode incremental or absolute
-		 * @returns {IndexMotionSegment} [freshly created accel segment]
+		 * @param {Number} t0 				[initial time]
+		 * @param {Number} tf 				[final time]
+		 * @param {Number} p0 				[initial position]
+		 * @param {Number} pf 				[final position]
+		 * @param {Number} v 				[initial/final velocity]
+		 * @param {Number} velLimPos		[positive velocity limit]
+		 * @param {Number} velLimNeg		[negative velocity limit]
+		 * @param {Number} accJerk			[acc curve jerk percent]
+		 * @param {Number} decJerk			[dec curve jerk percent]
+		 * @param {Number} xSkew			[x skew value <-1,1>]
+		 * @param {Number} ySkew			[y skew value <0,1>]
+		 * @param {string} shape			[triangle or trapezoid]
+		 * @param {string} mode				[incremental or absolute]
+		 * @returns {IndexMotionSegment}	[freshly created index segment]
 		 */
 		factory.Make = function(t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode) {
 			// data validation
@@ -434,10 +444,8 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			var indexSegment = new IndexSegment(t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode);
 
 			return indexSegment;
-
 		};
 
 		return factory;
-
 	}]);
 });
