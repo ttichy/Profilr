@@ -153,7 +153,8 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 * Calculates and creates the 1 to 7 basic segments that IndexSegment consists of
 		 * @param  {Number} t0   		[initial time]
 		 * @param  {Number} tf   		[finalt time]
-		 * @param  {Number} dp   		[position change (can be negative)]
+		 * @param  {Number} p0   		[initial position]
+		 * @param  {Number} pf   		[final position]
 		 * @param  {Number} v    		[start and end velocity]
 		 * @param  {Number} velLimPos 	[positive velocity limit (null/Inf if not applicable) <0,Inf>]
 		 * @param  {Number} velLimNeg	[negative velocity limit (null/-Inf if not applicable) <-Inf, 0>]
@@ -192,7 +193,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			if (velLimPos !== null && vmax > velLimPos) {
 				ySkew = (velLimPos - v)/v_ave-1;
 				vmax = velLimPos;
-				console.warn('Maximum velocity exceeds positive velocity limit. Changing ySkew.');
+				console.warn('Maximum velocity exceeds positive velocity limit. Changing ySkew.'); // this should probably be changed to a real error/warning.
 			} else if (velLimNeg !== null && vmax < velLimNeg) {
 				ySkew = (velLimNeg - v)/v_ave-1;
 				vmax = velLimNeg;
@@ -347,7 +348,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segments.initializeWithSegments(newBasicSegments);
 
 			return this;
-
 		};
 
 
