@@ -550,7 +550,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 		};
 
-
+		factory.calculateTimeVelocityBasicSegments = AccelSegmentTimeVelocity.prototype.calculateBasicSegments;
 
 
 		return factory;
