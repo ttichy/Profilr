@@ -815,41 +815,44 @@ define(["angularMocks",
             // (t0, tf, p0, v0, vf, jPct, mode, loads)
             var accSeg1 = profile.appendSegment(accelSegmentFactory.MakeFromTimeVelocity(0, 1, 0, 0, 77, 0.12, 'incremental'));
             // (t0, tf, p0, v0, pf, jPct, mode, loads)
-            var accSeg2 = profile.appendSegment(accelSegmentFactory.MakeFromTimeDistance(0, 12, 0, 77, 124, 0.5, 'absolute'));
+            console.log(accSeg1.finalTime);
+            var accSeg2 = profile.appendSegment(accelSegmentFactory.MakeFromTimeDistance(accSeg1.finalTime, 12, accSeg1.EvaluatePositionAt(accSeg1.finalTime), accSeg1.finalVelocity, 20, 0.5, 'incremental'));
 
+            expect(accSeg2.finalTime).toBe(13);
+            expect(accSeg2.EvaluatePositionAt(accSeg2.finalTime)).toBe(58.5);
             // (t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode)
-            var indexSeg = profile.insertSegment(
-                indexSegmentFactory.Make(
-                    accSeg1.finalTime, // t0
-                    accSeg1.finalTime + 1.67, // tf
-                    accSeg1.EvaluatePositionAt(accSeg1.finalTime), //
-                    accSeg1.EvaluatePositionAt(accSeg1.finalTime) + 12,
-                    accSeg1.EvaluateVelocityAt(accSeg1.finalTime),
-                    null,
-                    null,
-                    0.1,
-                    0.5,
-                    0.3,
-                    0.27,
-                    'trapezoid',
-                    'incremental'
-                ), accSeg2.id
-            );
+            // var indexSeg = profile.insertSegment(
+            //     indexSegmentFactory.Make(
+            //         accSeg1.finalTime, // t0
+            //         accSeg1.finalTime + 1.67, // tf
+            //         accSeg1.EvaluatePositionAt(accSeg1.finalTime), //
+            //         accSeg1.EvaluatePositionAt(accSeg1.finalTime) + 12,
+            //         accSeg1.EvaluateVelocityAt(accSeg1.finalTime),
+            //         null,
+            //         null,
+            //         0.1,
+            //         0.5,
+            //         0.3,
+            //         0.27,
+            //         'trapezoid',
+            //         'incremental'
+            //     ), accSeg2.id
+            // );
 
-            expect(indexSeg.finalTime).toBe(2.67);
-            expect(indexSeg.initialTime).toBe(accSeg1.finalTime);
-            expect(indexSeg.EvaluatePositionAt(indexSeg.finalTime)).toBeCloseTo(50.5);
+            // expect(indexSeg.finalTime).toBe(2.67);
+            // expect(indexSeg.initialTime).toBe(accSeg1.finalTime);
+            // expect(indexSeg.EvaluatePositionAt(indexSeg.finalTime)).toBeCloseTo(50.5);
 
-            expect(indexSeg.segmentData.p0).toBe(38.5);
+            // expect(indexSeg.segmentData.p0).toBe(38.5);
 
-            var accSeg1Get = profile.getAllSegments()[2];
-            expect(accSeg1Get.initialTime).toBe(2.67);
-            expect(accSeg1Get.finalTime).toBe(12);
-            expect(accSeg1Get.EvaluatePositionAt(accSeg1Get.initialTime)).toBeCloseTo(50.5, 4);
-            expect(accSeg1Get.EvaluatePositionAt(accSeg1Get.finalTime)).toBeCloseTo(124, 4);
-            expect(accSeg1Get.segmentData.jerkPercent).toBe(0.5);
-            expect(accSeg1Get.EvaluatePositionAt(8.8)).toBeCloseTo(274.64365, 4);
-            expect(accSeg1Get.EvaluateVelocityAt(8.8)).toBeCloseTo(-21.0651, 4);
+            // var accSeg1Get = profile.getAllSegments()[2];
+            // expect(accSeg1Get.initialTime).toBe(2.67);
+            // expect(accSeg1Get.finalTime).toBe(12);
+            // expect(accSeg1Get.EvaluatePositionAt(accSeg1Get.initialTime)).toBeCloseTo(50.5, 4);
+            // expect(accSeg1Get.EvaluatePositionAt(accSeg1Get.finalTime)).toBeCloseTo(124, 4);
+            // expect(accSeg1Get.segmentData.jerkPercent).toBe(0.5);
+            // expect(accSeg1Get.EvaluatePositionAt(8.8)).toBeCloseTo(274.64365, 4);
+            // expect(accSeg1Get.EvaluateVelocityAt(8.8)).toBeCloseTo(-21.0651, 4);
         });
     });
 });
