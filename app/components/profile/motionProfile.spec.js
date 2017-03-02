@@ -314,24 +314,56 @@
             });
 
 
-            it('appending a segment should match final conditions of the previous segment ', function() {
+
+            it("should be able to find parent segment via its child segment id", function() {
 
                 var profile = motionProfileFactory.createMotionProfile("rotary");
 
-                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
+                var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
+                    t0: 0,
+                    tf: 2,
+                    p0: 0,
+                    v0: 0,
+                    vf: 5,
+                    jPct: 0.5,
+                    mode: "incremental"
+
+                });
+
+                profile.appendSegment(seg1);
+
+
+
+                var allSegments = profile.getAllBasicSegments();
+
+                var childSegment = allSegments[1];
+
+                var parent = profile.findParentSegmentByChildId(childSegment.id);
+
+                expect(parent).toBe(seg1);
+
+
+
+            });            
+
+
+            it('it should append incremental segment after absolute segment and correctly evalute final values ', function() {
+
+                var profile = motionProfileFactory.createMotionProfile("rotary");
+
+                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5,"absolute");
 
                 profile.appendSegment(accelSegment1);
 
-                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
+                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(4, 6, 10, 10, 3, 0.5, "incremental");
 
                 profile.appendSegment(accelSegment2);
 
 
-                var allBasicSegments = profile.getAllBasicSegments();
+                var allBasicSegments = profile.getAllSegments();
 
                 //also, the profile needs to be valid
-                expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
-
+                expect(allBasicSegments[1].finalTime).toBe(4);
 
 
             });
