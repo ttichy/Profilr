@@ -2,7 +2,7 @@
  * Creates MotionProfile. MotionProfile is a list of MotionSegments.
  * MotionSegments represent the various available segments in a profile, such as BasicSegment, AccelSegment,
  * CamSegment, IndexSegment, etc...
- * 
+ *
  */
 
 
@@ -14,10 +14,11 @@ define(["angular",
 	"components/util/fastMath",
 	"components/profile/profileHelper",
 	"components/segments/accelSegment",
+	"components/segments/indexSegment",
 	"components/segments/loadSegment"
 ], function(angular,UndoManager) {
-	angular.module("myApp").factory('motionProfileFactory', ['AccelSegment','LoadSegment','MotionSegment', 'SegmentStash', 'FastMath', 'ProfileHelper',
-		function(AccelSegment,LoadSegment,MotionSegment, SegmentStash, fastMath, profileHelper) {
+	angular.module("myApp").factory('motionProfileFactory', ['AccelSegment', 'IndexSegment', 'LoadSegment', 'MotionSegment', 'SegmentStash', 'FastMath', 'ProfileHelper',
+		function(AccelSegment, IndexSegment, LoadSegment, MotionSegment, SegmentStash, fastMath, profileHelper) {
 
 
 			/*
@@ -35,7 +36,7 @@ define(["angular",
 				if (type === "linear")
 					this.ProfileType = "linear";
 
-				
+
 				//create object to hold all the profile loads
 				var loads = {};
 
@@ -51,7 +52,7 @@ define(["angular",
 				}
 
 				this.profileLoads=loads;
-				
+
 				this.undoManager = new UndoManager();
 				MotionSegment.MotionSegment.call(this);
 			};
@@ -94,7 +95,7 @@ define(["angular",
 
 
 			MotionProfile.prototype.recalculateProfileSegments = function(current) {
-				//nothing to do 
+				//nothing to do
 				if (!current)
 					return;
 
@@ -282,11 +283,11 @@ define(["angular",
 
 
 	        /**
-	         * 
-	         * @param {int} segmentId 
+	         *
+	         * @param {int} segmentId
 	         * @param {Object} newSegmentData new segment data
 	         * @param {Object} initialConditions initial conditions for the modified segment
-	         * @returns {MotionSegment} 
+	         * @returns {MotionSegment}
 	         */
 	        MotionProfile.prototype.modifySegmentValues = function(segmentId, newSegmentData, initialConditions) {
 	            var segment = this.findById(segmentId);
@@ -365,7 +366,7 @@ define(["angular",
 	        	if(this.profileLoads[loadSegment.type].countSegments()===0) {
 	        		this.profileLoads[loadSegment.type].insertAt(loadSegment,prevId);
 	        	}
-				else				
+				else
 					throw new Error("Currently, only one segment per type can be added");
 
 
@@ -393,7 +394,7 @@ define(["angular",
 	         * @return {LoadSegment}           deleted load segment
 	         */
 	        MotionProfile.prototype.deleteLoadSegment = function(segmentId, type) {
-	        	
+
 	        	// passing  type is optional, but helpful
 	        	if(type) {
 	        		if(!this.profileLoads[type])
@@ -426,7 +427,7 @@ define(["angular",
 	        };
 
 	        MotionProfile.prototype.modifyLoadSegment = function(segmentId, newSegmentData) {
-	        	
+
 	        	if(!newSegmentData.type)
 	        		throw new Error("Expecting new segment to have type");
 
@@ -449,7 +450,7 @@ define(["angular",
 			        redo: function() {
 			            profile.modifyLoadSegment(segmentId,newSegmentData);
 			        }
-			    });	            
+			    });
 
 
 	        };
@@ -492,7 +493,7 @@ define(["angular",
 					throw new Error("Need segment data to create a segment");
 
 				var loads={};
-				
+
 				loads.load=segment.load;
 				loads.thrust=segment.thrust;
 				loads.friction=segment.friction;
@@ -511,8 +512,15 @@ define(["angular",
 
 			};
 
+			factory.createIndexSegment = function (segment) {
 
+				if(!segment)
+					throw new Error("Need segment data to create a segment");
 
+				 // function(t0, tf, p0, dp, v, velLimPos, velLimNeg, accJerkPct, decJerkPct, xSkew, ySkew, shape, mode)
+				return IndexSegment.MakeIndexSegment(segment.t0, segment.tf, segment.p0, segment.dp, segment.v0, segment.velLimPos, segment.velLimNeg, segment.accJerkPct, segment.decJerkPct, segment.xSkew, segment.ySkew, segment.shape, segment.mode);
+
+			}
 
 
 			return factory;
