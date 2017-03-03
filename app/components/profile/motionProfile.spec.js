@@ -5,7 +5,68 @@ define(["angularMocks",
     "components/segments/accelSegment",
     "components/segments/indexSegment",
     "components/util/fastMath"
-    ], function() {
+], function() {
+
+
+    describe('Unit: profile serialization testing', function() {
+
+        var motionProfileFactory;
+        beforeEach(function() {
+            module('myApp');
+
+            inject(function(_motionProfileFactory_, _AccelSegment_, _IndexSegment_, _FastMath_) {
+                motionProfileFactory = _motionProfileFactory_;
+            });
+        });
+
+        it('should be able to serialize and deserialize profile with only AccelSegments', function() {
+
+            var profile = motionProfileFactory.createMotionProfile("rotary");
+
+            profile.setInitialConditions(1, 2);
+
+            var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
+                t0: 0,
+                tf: 2,
+                p0: 0,
+                v0: 0,
+                vf: 5,
+                jPct: 0.5,
+                mode: "incremental"
+
+            });
+
+            var seg2 = motionProfileFactory.createAccelSegment("time-velocity", {
+                t0: 2,
+                tf: 5,
+                p0: 0,
+                v0: 0,
+                vf: 0,
+                jPct: 0.5,
+                mode: "incremental"
+
+            });
+
+            profile.appendSegment(seg1);
+            profile.appendSegment(seg2);
+
+
+            // deserialize
+
+            var json = motionProfileFactory.serializeProfile(profile);
+
+            var profileObj = JSON.parse(json);
+
+            expect(profileObj.type).toBe("rotary");
+            expect(profileObj.initialPosition).toBe(1);
+            expect(profileObj.initialVelocity).toBe(2);
+
+
+
+        });
+
+    });
+
 
     describe('Unit: motionProfileFactory testing', function() {
 
@@ -314,80 +375,80 @@ define(["angularMocks",
         });
 
 
-            it('appending a segment should match final conditions of the previous segment ', function() {
+        it('appending a segment should match final conditions of the previous segment ', function() {
 
-                var profile = motionProfileFactory.createMotionProfile("rotary");
+            var profile = motionProfileFactory.createMotionProfile("rotary");
 
-                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
+            var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5);
 
-                profile.appendSegment(accelSegment1);
+            profile.appendSegment(accelSegment1);
 
-                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
+            var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 3, 0.5);
 
-                profile.appendSegment(accelSegment2);
-
-
-                var allBasicSegments = profile.getAllBasicSegments();
-
-                //also, the profile needs to be valid
-                expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
+            profile.appendSegment(accelSegment2);
 
 
+            var allBasicSegments = profile.getAllBasicSegments();
 
-            });
-            
-            it("should be able to find parent segment via its child segment id", function() {
-
-                var profile = motionProfileFactory.createMotionProfile("rotary");
-
-                var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
-                    t0: 0,
-                    tf: 2,
-                    p0: 0,
-                    v0: 0,
-                    vf: 5,
-                    jPct: 0.5,
-                    mode: "incremental"
-
-                });
-
-                profile.appendSegment(seg1);
+            //also, the profile needs to be valid
+            expect(ph.validateBasicSegments(profile.getAllBasicSegments())).toBe(true);
 
 
 
-                var allSegments = profile.getAllBasicSegments();
+        });
 
-                var childSegment = allSegments[1];
+        it("should be able to find parent segment via its child segment id", function() {
 
-                var parent = profile.findParentSegmentByChildId(childSegment.id);
+            var profile = motionProfileFactory.createMotionProfile("rotary");
 
-                expect(parent).toBe(seg1);
-
-
-
-            });            
-
-
-            it('it should append incremental segment after absolute segment and correctly evalute final values ', function() {
-
-                var profile = motionProfileFactory.createMotionProfile("rotary");
-
-                var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5,"absolute");
-
-                profile.appendSegment(accelSegment1);
-
-                var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(4, 6, 10, 10, 3, 0.5, "incremental");
-
-                profile.appendSegment(accelSegment2);
-
-
-                var allBasicSegments = profile.getAllSegments();
-
-                //also, the profile needs to be valid
-                expect(allBasicSegments[1].finalTime).toBe(4);
-
+            var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
+                t0: 0,
+                tf: 2,
+                p0: 0,
+                v0: 0,
+                vf: 5,
+                jPct: 0.5,
+                mode: "incremental"
 
             });
+
+            profile.appendSegment(seg1);
+
+
+
+            var allSegments = profile.getAllBasicSegments();
+
+            var childSegment = allSegments[1];
+
+            var parent = profile.findParentSegmentByChildId(childSegment.id);
+
+            expect(parent).toBe(seg1);
+
+
+
+        });
+
+
+        it('it should append incremental segment after absolute segment and correctly evalute final values ', function() {
+
+            var profile = motionProfileFactory.createMotionProfile("rotary");
+
+            var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 5, 0.5, "absolute");
+
+            profile.appendSegment(accelSegment1);
+
+            var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(4, 6, 10, 10, 3, 0.5, "incremental");
+
+            profile.appendSegment(accelSegment2);
+
+
+            var allBasicSegments = profile.getAllSegments();
+
+            //also, the profile needs to be valid
+            expect(allBasicSegments[1].finalTime).toBe(4);
+
+
+        });
 
         it("should be able to create segments via motionProfile accel segment function", function() {
 
@@ -863,7 +924,7 @@ define(["angularMocks",
             //we should get back the same segment that we just created
             expect(sameSeg).toBe(seg1);
 
-            profile.modifySegmentValues(sameSeg.id,{
+            profile.modifySegmentValues(sameSeg.id, {
                 distance: 2.5
             }, {
                 position: 0,
@@ -900,7 +961,7 @@ define(["angularMocks",
 
         // });
 
-        it('should be able to append an index segment to an empty profile, then delete it', function () {
+        it('should be able to append an index segment to an empty profile, then delete it', function() {
             var profile = motionProfileFactory.createMotionProfile('linear');
 
             //(t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode) {
@@ -933,7 +994,7 @@ define(["angularMocks",
             expect(indexSeg).toBe(sameSeg2);
         });
 
-        it('should be able to insert an accel segment before an index segment', function () {
+        it('should be able to insert an accel segment before an index segment', function() {
             var profile = motionProfileFactory.createMotionProfile('rotary');
 
             //(t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode)
@@ -958,9 +1019,9 @@ define(["angularMocks",
 
             expect(allSegs.length).toBe(2);
 
-            var allSegs = profile.getAllSegments();
+            allSegs = profile.getAllSegments();
             // console.log(profile);
-            console.log(allSegs);
+            // console.log(allSegs);
 
             expect(profile.segments.countSegments()).toBe(2);
             expect(allSegs[0].EvaluateVelocityAt(0.8)).toBeCloseTo(0.3430342, 4);

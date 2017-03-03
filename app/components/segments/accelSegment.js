@@ -61,24 +61,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		};
 
 
-		/**
-		 * Serializes accelsegment data
-		 * @return {string} json representation of the segment
-		 */
-		AccelMotionSegment.prototype.serialize = function() {
-			var dataObj={};
-			var segData={};
-			dataObj.initialTime=this.initialTime;
-			dataObj.finalTime=this.finalTime;
-			angular.extend(segData,this.segmentData);
-			dataObj.segmentData=segData;
-			dataObj.type=this.constructor.name;
-
-			return JSON.stringify(dataObj);
-
-		};
-
-
 		AccelMotionSegment.prototype.FindSegmentAtTime = function(time) {
 			var segment = this.segments.getAllSegments().filter(function(bSeg) {
 				return fastMath.geq(time, bSeg.initialTime) && fastMath.leq(time, bSeg.finalTime);
@@ -144,6 +126,43 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 				segments[i].load=loads.load;
 			}
 		};
+
+
+		/**
+		 * Gets pertinenta data to be able to serialize/deserilize segment
+		 * @return {object} data representation of the segment
+		 */
+		AccelMotionSegment.prototype.exportData = function() {
+			var dataObj={};
+
+			angular.extend(dataObj,this.segmentData);
+			dataObj.constructor=this.constructor.name;
+			dataObj.type = 'AccelMotionSegment';
+
+			return dataObj;
+
+		};
+
+
+		/**
+		 * Deserialize(create) AccelMotionSegment from a json string
+		 * @param  {Object} data data representation of the segment (see exportData())
+		 * @return {AccelMotionSegment}      [description]
+		 */
+		AccelMotionSegment.prototype.importFromData = function(data) {
+			
+			switch(data.constructor) {
+				case "AccelSegmentTimeVelocity":
+					return new AccelSegmentTimeVelocity(0,data.duration,0,data.distance,0,data);
+				
+				case "AccelSegmentTimeDistance":
+					return new AccelSegmentTimeDistance(0,data.duration,0,0,data.distance,data.jerkPercent,data.mode,data.loads);
+				}
+				
+			throw new Error("Unkown AccelSegment type: "+data.constructor);
+			
+		};
+
 
 
 		var AccelSegmentTimeVelocity = function(t0, tf, p0, v0, vf, jPct, mode,loads) {
@@ -321,7 +340,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 
 
-
 		/**
 		 * Acceleration segment that is based on time and distance.
 		 * When initial conditions change, it is recalculated such that the duration and final position stay the same
@@ -357,17 +375,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 			AccelMotionSegment.call(this, basicSegments);
 			this.setBasicSegmentLoads(loads);
-
-			//save creation data for later serialization
-			this.originalData={};
-			this.originalData.t0=t0;
-			this.originalData.tf=tf;
-			this.originalData.p0=p0;
-			this.originalData.v0=v0;
-			this.originalData.pf=pf;
-			this.originalData.jPct=jPct;
-			this.originalData.mode=mode;
-			this.originalData.loads=loads;
 
 
 		};
@@ -587,6 +594,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		};
 
 		factory.calculateTimeVelocityBasicSegments = AccelSegmentTimeVelocity.prototype.calculateBasicSegments;
+
+
+		factory.AccelMotionSegment = AccelMotionSegment;
 
 
 		return factory;
