@@ -425,6 +425,20 @@ define(["angularMocks", "components/segments/accelSegment"], function() {
 
         });
 
+        it("Should correctly serialize an accel segment", function() {
+
+            var seg = accelSegmentFactory.MakeFromTimeDistance(0, 1, 0, 2, 0.5, 0);
+            
+            var json = seg.serialize();
+
+
+            var obj=JSON.parse(json);
+
+            expect(obj.initialTime).toBe(0);
+            expect(obj.finalTime).toBe(1);
+
+
+        });
 
 
     });

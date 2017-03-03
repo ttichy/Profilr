@@ -520,7 +520,7 @@ define(["angular",
 				 // function(t0, tf, p0, dp, v, velLimPos, velLimNeg, accJerkPct, decJerkPct, xSkew, ySkew, shape, mode)
 				return IndexSegment.MakeIndexSegment(segment.t0, segment.tf, segment.p0, segment.dp, segment.v0, segment.velLimPos, segment.velLimNeg, segment.accJerkPct, segment.decJerkPct, segment.xSkew, segment.ySkew, segment.shape, segment.mode);
 
-			}
+			};
 
 
 			return factory;

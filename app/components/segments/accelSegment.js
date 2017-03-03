@@ -61,6 +61,24 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		};
 
 
+		/**
+		 * Serializes accelsegment data
+		 * @return {string} json representation of the segment
+		 */
+		AccelMotionSegment.prototype.serialize = function() {
+			var dataObj={};
+			var segData={};
+			dataObj.initialTime=this.initialTime;
+			dataObj.finalTime=this.finalTime;
+			angular.extend(segData,this.segmentData);
+			dataObj.segmentData=segData;
+			dataObj.type=this.constructor.name;
+
+			return JSON.stringify(dataObj);
+
+		};
+
+
 		AccelMotionSegment.prototype.FindSegmentAtTime = function(time) {
 			var segment = this.segments.getAllSegments().filter(function(bSeg) {
 				return fastMath.geq(time, bSeg.initialTime) && fastMath.leq(time, bSeg.finalTime);
@@ -339,6 +357,17 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 			AccelMotionSegment.call(this, basicSegments);
 			this.setBasicSegmentLoads(loads);
+
+			//save creation data for later serialization
+			this.originalData={};
+			this.originalData.t0=t0;
+			this.originalData.tf=tf;
+			this.originalData.p0=p0;
+			this.originalData.v0=v0;
+			this.originalData.pf=pf;
+			this.originalData.jPct=jPct;
+			this.originalData.mode=mode;
+			this.originalData.loads=loads;
 
 
 		};
