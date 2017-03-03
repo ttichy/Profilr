@@ -128,6 +128,43 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		};
 
 
+		/**
+		 * Gets pertinenta data to be able to serialize/deserilize segment
+		 * @return {object} data representation of the segment
+		 */
+		AccelMotionSegment.prototype.exportData = function() {
+			var dataObj={};
+
+			angular.extend(dataObj,this.segmentData);
+			dataObj.constructor=this.constructor.name;
+			dataObj.type = 'AccelMotionSegment';
+
+			return dataObj;
+
+		};
+
+
+		/**
+		 * Deserialize(create) AccelMotionSegment from a json string
+		 * @param  {Object} data data representation of the segment (see exportData())
+		 * @return {AccelMotionSegment}      [description]
+		 */
+		AccelMotionSegment.prototype.importFromData = function(data) {
+			
+			switch(data.constructor) {
+				case "AccelSegmentTimeVelocity":
+					return new AccelSegmentTimeVelocity(0,data.duration,0,0,data.finalVelocity, data.jerkPercent, data.mode,data.loads);
+				
+				case "AccelSegmentTimeDistance":
+					return new AccelSegmentTimeDistance(0,data.duration,0,0,data.distance,data.jerkPercent,data.mode,data.loads);
+				}
+				
+			throw new Error("Unkown AccelSegment type: "+data.constructor);
+			
+		};
+
+
+
 		var AccelSegmentTimeVelocity = function(t0, tf, p0, v0, vf, jPct, mode,loads) {
 
 			if(arguments.length <=7 )
@@ -307,7 +344,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 			
 		};
-
 
 
 
@@ -573,6 +609,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		};
 
 		factory.calculateTimeVelocityBasicSegments = AccelSegmentTimeVelocity.prototype.calculateBasicSegments;
+
+
+		factory.AccelMotionSegment = AccelMotionSegment;
 
 
 		return factory;

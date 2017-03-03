@@ -425,7 +425,24 @@ define(["angularMocks", "components/segments/accelSegment"], function() {
 
         });
 
+        it("Should correctly serialize and deserialize an accel segment", function() {
 
+            //note this only works with initial conditions equal to zero.
+            //once 
+
+            var seg = accelSegmentFactory.MakeFromTimeDistance(0, 1, 0, 0, 0.5, 0);
+            
+            var obj= seg.exportData();
+
+            expect(obj.finalTime).toBe(1);
+            expect(obj.mode).toEqual("incremental");
+            expect(obj.finalPosition).toBe(0.5);
+
+
+            var newSeg=seg.importFromData(obj);
+            expect(seg.EvaluatePositionAt(0.56)).toBeCloseTo(newSeg.EvaluatePositionAt(0.56),4);
+
+        });
 
     });
 
