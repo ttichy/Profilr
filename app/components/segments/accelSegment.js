@@ -121,9 +121,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			var segments=this.getAllSegments();
 
 			for (var i = segments.length - 1; i >= 0; i--) {
-				segments[i].friction=loads.friction;
-				segments[i].thrust=loads.thrust;
-				segments[i].load=loads.load;
+				segments[i].friction=loads.friction || 0;
+				segments[i].thrust=loads.thrust || 0;
+				segments[i].load=loads.load || 0;
 			}
 		};
 
@@ -136,13 +136,17 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			if (mode !== "absolute")
 				mode = "incremental";
 
+			var loads_copy= {};
+			angular.extend(loads_copy,loads);
+
 			this.segmentData = {
 				dataPermutation: "time-velocity",
 				mode: mode,
 				finalVelocity: vf,
 				finalTime: tf,
 				duration: tf - t0,
-				jerkPercent: jPct
+				jerkPercent: jPct,
+				loads:loads_copy
 			};
 
 			var basicSegments = this.calculateBasicSegments(t0, tf, p0, v0, vf, jPct);
@@ -282,6 +286,8 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segmentData.finalVelocity= newSegmentData.finalVelocity || this.segmentData.finalVelocity;
 			this.segmentData.duration = newSegmentData.duration || this.segmentData.duration;
 			this.segmentData.jerkPercent = newSegmentData.jerkPercent || this.segmentData.jerkPercent;
+			this.segmentData.loads = {};
+			angular.extend(this.segmentData.loads,newSegmentData.loads);
 			
 			this.finalTime=this.initialTime+this.segmentData.duration;
 
@@ -296,6 +302,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 			this.segments.initializeWithSegments(newBasicSegments);
 
+			this.setBasicSegmentLoads(newSegmentData.loads);
 			return this;
 
 			
@@ -322,6 +329,10 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			if (mode !== "absolute")
 				mode = "incremental";
 
+
+			var loads_copy= {};
+			angular.extend(loads_copy,loads);
+
 			//incremental and absolute segments are instantiated the same way
 
 			this.segmentData = {
@@ -331,7 +342,8 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 				distance: pf - p0,
 				duration: tf - t0,
 				mode: mode,
-				jerkPercent: jPct
+				jerkPercent: jPct,
+				loads: loads_copy
 			};
 
 			var basicSegments = this.calculateBasicSegments(t0, tf, p0, v0, pf, jPct);
@@ -493,7 +505,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segmentData.jerkPercent = newSegmentData.jerkPercent || this.segmentData.jerkPercent;
 			
 			this.finalTime=this.initialTime+this.segmentData.duration;
-
+			
+			this.segmentData.loads = {};
+			angular.extend(this.segmentData.loads,newSegmentData.loads);
 
 			var newBasicSegments = this.calculateBasicSegments(this.initialTime,
 				this.finalTime,
@@ -504,6 +518,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			);
 
 			this.segments.initializeWithSegments(newBasicSegments);
+			this.setBasicSegmentLoads(newSegmentData.loads);
 
 			return this;
 
