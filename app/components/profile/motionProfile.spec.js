@@ -51,8 +51,7 @@ define(["angularMocks",
             profile.appendSegment(seg2);
 
 
-            // deserialize
-
+            // serialize
             var json = motionProfileFactory.serializeProfile(profile);
 
             var profileObj = JSON.parse(json);
@@ -60,6 +59,11 @@ define(["angularMocks",
             expect(profileObj.type).toBe("rotary");
             expect(profileObj.initialPosition).toBe(1);
             expect(profileObj.initialVelocity).toBe(2);
+
+
+            var newProfile=motionProfileFactory.deserializeProfile(json);
+
+            expect(newProfile.getAllSegments()[1].EvaluatePositionAt(5)).toBe(profile.getAllSegments()[1].EvaluatePositionAt(5));
 
 
 

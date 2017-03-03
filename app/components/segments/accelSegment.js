@@ -153,7 +153,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			
 			switch(data.constructor) {
 				case "AccelSegmentTimeVelocity":
-					return new AccelSegmentTimeVelocity(0,data.duration,0,data.distance,0,data);
+					return new AccelSegmentTimeVelocity(0,data.duration,0,0,data.finalVelocity, data.jerkPercent, data.mode,data.loads);
 				
 				case "AccelSegmentTimeDistance":
 					return new AccelSegmentTimeDistance(0,data.duration,0,0,data.distance,data.jerkPercent,data.mode,data.loads);

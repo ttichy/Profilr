@@ -567,15 +567,19 @@ define(["angular",
 
 				}
 
-				var profileObj = profileGraph.profile;
+				var profileObj = profileGraph;
 				if (!profileObj)
 					throw new Error("Expecting key 'profile' to exist in the json string");
 
+				var that = this;
+
 				var profile = new MotionProfile(profileObj.type);
 				profileGraph.segments.forEach(function(segObj) {
-					var segment = this[segObj.type].prototype.importFromData(segObj);
+					var segment = that[segObj.type].prototype.importFromData(segObj);
 					profile.appendSegment(segment);
 				});
+
+				return profile;
 			};
 
 
