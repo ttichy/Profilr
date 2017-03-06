@@ -1032,5 +1032,31 @@ define(["angularMocks",
             expect(allSegs[1].EvaluateVelocityAt(2.206)).toBeCloseTo(-0.15030278, 4);
 
         });
+
+        it('should clear the profile, leaving no segments', function() {
+
+            var profile = motionProfileFactory.createMotionProfile("rotary");
+
+            var accelSegment1 = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 10, 0.5);
+
+            profile.appendSegment(accelSegment1);
+
+            var accelSegment2 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 10, 0, 0.5);
+
+            profile.appendSegment(accelSegment2);
+
+            var accelSegment3 = accelSegmentFactory.MakeFromTimeVelocity(2, 4, 10, 5, 0, 0.5);
+
+            profile.insertSegment(accelSegment3, accelSegment2.id);
+
+
+            //after inserting, there should be 3 segments total
+            expect(profile.getAllSegments().length).toBe(3);
+
+            profile.clear();
+            expect(profile.getAllSegments().length).toBe(0);
+
+        });
+
     });
 });

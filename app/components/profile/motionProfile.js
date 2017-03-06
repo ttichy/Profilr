@@ -539,6 +539,7 @@ define(["angular",
 				profileObj.initialFriction = profile.initialFriction;
 
 				var segments = [];
+				var loadSegments = [];
 
 				profile.getAllSegments().forEach(function(segment) {
 					var segData = segment.exportData();
@@ -546,7 +547,12 @@ define(["angular",
 
 				});
 
+				profile.getAllLoadSegments().forEach(function(loadSeg){
+					loadSegments.push(loadSeg.exportData());
+				});
+
 				profileObj.segments = segments;
+				profileObj.loadSegments = loadSegments;
 
 				return JSON.stringify(profileObj);
 
