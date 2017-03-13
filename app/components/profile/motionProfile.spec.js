@@ -949,13 +949,13 @@ define(["angularMocks",
             // (t0, tf, p0, v0, pf, jPct, mode, loads)
             var accSeg2 = profile.appendSegment(
                 accelSegmentFactory.MakeFromTimeDistance(
-                    accSeg1.finalTime,
-                    13,
-                    accSeg1.EvaluatePositionAt(accSeg1.finalTime),
-                    accSeg1.EvaluateVelocityAt(accSeg1.finalTime),
-                    58.5,
-                    0.5,
-                    'absolute'));
+                    accSeg1.finalTime, // t0
+                    13, // tf
+                    accSeg1.EvaluatePositionAt(accSeg1.finalTime), // p0
+                    accSeg1.EvaluateVelocityAt(accSeg1.finalTime), // v0
+                    58.5, // pf
+                    0.5, // jPct
+                    'absolute')); // mode
 
             // rerun exact same tests on accSeg1
             expect(accSeg1.EvaluatePositionAt(0.74)).toBeCloseTo(20.6589, 4);
@@ -1025,7 +1025,8 @@ define(["angularMocks",
             expect(accSeg2B.EvaluateVelocityAt(2.67)).toBeCloseTo(77, 10);
             expect(accSeg2B.EvaluateVelocityAt(8)).toBeCloseTo(-2.4723373, 4);
             expect(accSeg2B.EvaluateVelocityAt(13)).toBeCloseTo(-75.4511, 4); // this value is wrong
-            console.log(accSeg2B.getAllSegments()[2]);
+
+            expect(accSeg2B.EvaluateAccelerationAt(8)).toBeCloseTo(-19.6775, 4);
 
 
             // expect(indexSeg.finalTime).toBe(2.67);
