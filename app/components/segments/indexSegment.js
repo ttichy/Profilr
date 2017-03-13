@@ -1,9 +1,7 @@
 "use strict";
 // get app reference
 define(["angular", "components/segments/motionSegment", "components/segments/basicSegment", "components/util/fastMath"], function(angular) {
-	angular.module("myApp").
-	factory('IndexSegment', ['MotionSegment', 'basicSegmentFactory', 'AccelSegment','FastMath',
-	 function(MotionSegment, basicSegmentFactory, AccelSegment,fastMath) {
+	angular.module("myApp").factory('IndexSegment', ['MotionSegment', 'basicSegmentFactory', 'AccelSegment','FastMath',	 function(MotionSegment, basicSegmentFactory, AccelSegment,fastMath) {
 
 		var factory = {};
 
@@ -220,8 +218,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			// accel segment
 			var nextPosition;
 			if (acc_time > 0) {
-				outputSegs = [].concat(outputSegs,
-				 AccelSegment.calculateTimeVelocityBasicSegments(t0, t0+acc_time, p0, v, vmax, accJerk));
+				outputSegs = [].concat(outputSegs, AccelSegment.calculateTimeVelocityBasicSegments(t0, t0+acc_time, p0, v, vmax, accJerk));
 				nextPosition = outputSegs[outputSegs.length-1].evaluatePositionAt(t0+acc_time);
 			} else {
 				nextPosition = p0;
@@ -234,8 +231,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			}
 
 			// decel segment
-			outputSegs = [].concat(outputSegs,
-			 AccelSegment.calculateTimeVelocityBasicSegments(t0+acc_time+coast_time, tf, nextPosition, vmax, v, decJerk));
+			outputSegs = [].concat(outputSegs, AccelSegment.calculateTimeVelocityBasicSegments(t0+acc_time+coast_time, tf, nextPosition, vmax, v, decJerk));
 
 			return outputSegs;
 		};
@@ -261,9 +257,8 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 				tf = this.segmentData.finalTime;
 				pf = this.segmentData.finalPosition;
 				this.segmentData.duration = tf-t0;
-
-			if (fastMath.lt(this.segmentData.duration, 0))
-					throw new Error('tried to move initial time past final time for absolute segment');
+				if (fastMath.lt(this.segmentData.duration, 0))
+						throw new Error('tried to move initial time past final time for absolute segment');
 			}
 
 			var newBasicSegments = this.calculateBasicSegments(t0,

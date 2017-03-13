@@ -109,8 +109,9 @@ define(["angular",
 					//handle first segment
 					if (!prev) {
 						previousValues = [0, 0, this.initialVelocity, this.initialPosition];
-					} else
+					} else {
 						previousValues = prev.getFinalValues();
+					}
 
 					current.modifyInitialValues(previousValues[0], previousValues[1], previousValues[2], previousValues[3]);
 
@@ -148,10 +149,10 @@ define(["angular",
 
 				var lastValues;
 
-				if(prev!==null)
+				if (prev!==null) {
 					//modify the segment being inserted to make sure initial values == previous segment's final values
 					lastValues = prev.getFinalValues();
-				else{
+				} else {
 					lastValues = [0,0,this.initialVelocity,this.initialPosition];
 				}
 

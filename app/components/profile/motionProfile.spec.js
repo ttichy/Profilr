@@ -813,7 +813,22 @@ define(["angularMocks",
         it('insert index segment between two accel segments (incremental and absolute)', function () {
             var profile = motionProfileFactory.createMotionProfile('linear');
             // (t0, tf, p0, v0, vf, jPct, mode, loads)
-            var accSeg1 = profile.appendSegment(accelSegmentFactory.MakeFromTimeVelocity(0, 1, 0, 0, 77, 0.12, 'incremental'));
+            var accSeg1 = profile.appendSegment(
+                accelSegmentFactory.MakeFromTimeVelocity(
+                    0,
+                    1,
+                    0,
+                    0,
+                    77,
+                    0.12,
+                    'incremental'));
+
+            // run tests on accSeg 1
+            expect(accSeg1.EvaluatePositionAt(0.74)).toBeCloseTo(20.6589, 4);
+            expect(accSeg1.EvaluatePositionAt(accSeg1.finalTime)).toBe(38.5);
+            expect(accSeg1.EvaluatePositionAt(1)).toBe(38.5);
+            expect(accSeg1.EvaluatePositionAt(0.6)).toBeCloseTo(13.3193617, 4);
+
             // (t0, tf, p0, v0, pf, jPct, mode, loads)
             var accSeg2 = profile.appendSegment(
                 accelSegmentFactory.MakeFromTimeDistance(
@@ -823,39 +838,78 @@ define(["angularMocks",
                     accSeg1.EvaluateVelocityAt(accSeg1.finalTime),
                     58.5,
                     0.5,
-                    'absolute'
-                )
-            );
+                    'absolute'));
 
-            expect(accSeg1.EvaluatePositionAt(0.74)).toBeCloseTo(20.6786, 4);
+            // rerun exact same tests on accSeg1
+            expect(accSeg1.EvaluatePositionAt(0.74)).toBeCloseTo(20.6589, 4);
             expect(accSeg1.EvaluatePositionAt(accSeg1.finalTime)).toBe(38.5);
+            expect(accSeg1.EvaluatePositionAt(1)).toBe(38.5);
+            expect(accSeg1.EvaluatePositionAt(0.6)).toBeCloseTo(13.3193617, 4);
+
+            // run tests on accSeg2
             expect(accSeg2.finalTime).toBe(13);
             expect(accSeg2.EvaluatePositionAt(accSeg2.finalTime)).toBeCloseTo(58.5, 4);
+            expect(accSeg2.EvaluatePositionAt(7.0995575)).toBeCloseTo(324.80518657, 4);
 
-
+            // console.log(accSeg1.getFinalValues());
 
             // (t0, tf, p0, pf, v, velLimPos, velLimNeg, accJerk, decJerk, xSkew, ySkew, shape, mode)
-            var indexSeg = profile.insertSegment(
+            var indexSeg1 = profile.insertSegment(
                 indexSegmentFactory.Make(
                     accSeg1.finalTime, // t0
                     accSeg1.finalTime + 1.67, // tf
-                    accSeg1.EvaluatePositionAt(accSeg1.finalTime), //
-                    accSeg1.EvaluatePositionAt(accSeg1.finalTime) + 12,
-                    accSeg1.EvaluateVelocityAt(accSeg1.finalTime),
-                    null,
-                    null,
-                    0.1,
-                    0.5,
-                    0.3,
-                    0.27,
-                    'trapezoid',
-                    'incremental'
-                ), accSeg2.id
-            );
+                    accSeg1.EvaluatePositionAt(accSeg1.finalTime), // p0
+                    accSeg1.EvaluatePositionAt(accSeg1.finalTime) + 12, // pf
+                    accSeg1.EvaluateVelocityAt(accSeg1.finalTime), // v
+                    null, // velLimPos
+                    null, // velLimNeg
+                    0.1, // accJerk
+                    0.5, // decJerk
+                    0.3, // xSkew
+                    0.27, // ySkew
+                    'trapezoid', // shape
+                    'incremental'), // mode
+                accSeg2.id);
 
-            accSeg2 = profile.getAllSegments()[2];
-            expect(accSeg2.finalTime).toBe(13);
-            expect(accSeg2.EvaluatePositionAt(accSeg2.finalTime)).toBeCloseTo(58.5, 4);
+            // get segments after inserting indexSegment
+            var accSeg1B = profile.getAllSegments()[0];
+            var indexSeg1B = profile.getAllSegments()[1];
+            var accSeg2B = profile.getAllSegments()[2];
+
+            // index seg start and end time
+            expect(indexSeg1B.initialTime).toBe(1);
+            expect(indexSeg1B.finalTime).toBe(2.67);
+
+            // index seg start, end, and middle position
+            expect(indexSeg1B.EvaluatePositionAt(1)).toBe(38.5);
+            expect(indexSeg1B.EvaluatePositionAt(1.5)).toBeCloseTo(53.12942, 4);
+            expect(indexSeg1B.EvaluatePositionAt(2.67)).toBeCloseTo(50.5, 4);
+
+            // index seg start, middle, and end velocity
+            expect(indexSeg1B.EvaluateVelocityAt(1)).toBeCloseTo(77, 10);
+            expect(indexSeg1B.EvaluateVelocityAt(1.5)).toBeCloseTo(-11.66425, 4);
+            expect(indexSeg1B.EvaluateVelocityAt(2.67)).toBeCloseTo(77, 10);
+
+            // index seg early, middle, and late acceleration
+            expect(indexSeg1B.EvaluateAccelerationAt(1.2)).toBeCloseTo(-202.211, 3);
+            expect(indexSeg1B.EvaluateAccelerationAt(1.85)).toBe(0);
+            expect(indexSeg1B.EvaluateAccelerationAt(2.55)).toBeCloseTo(475.678, 3);
+
+            // accSeg2 intial and final time
+            expect(accSeg2B.initialTime).toBe(2.67);
+            expect(accSeg2B.finalTime).toBe(13);
+
+            // accSeg2 start, middle, and end position
+            expect(accSeg2B.EvaluatePositionAt(2.67)).toBeCloseTo(50.5, 4);
+            expect(accSeg2B.EvaluatePositionAt(8.001514035)).toBeCloseTo(294.953658, 4);
+            expect(accSeg2B.EvaluatePositionAt(13)).toBeCloseTo(58.5, 4); // this value is wrong
+
+            // accSeg2 start and end velocity
+            expect(accSeg2B.EvaluateVelocityAt(2.67)).toBeCloseTo(77, 10);
+            expect(accSeg2B.EvaluateVelocityAt(8)).toBeCloseTo(-2.4723373, 4);
+            expect(accSeg2B.EvaluateVelocityAt(13)).toBeCloseTo(-75.4511, 4); // this value is wrong
+            console.log(accSeg2B.getAllSegments()[2]);
+
 
             // expect(indexSeg.finalTime).toBe(2.67);
             // expect(indexSeg.initialTime).toBe(accSeg1.finalTime);

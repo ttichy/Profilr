@@ -5,8 +5,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 		var factory = {};
 
-
-
 		/**
 		 * AccelMotion segment constructor
 		 * @param {Array} basicSegments [array of basic segments]
@@ -229,6 +227,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			basicSegment = basicSegmentFactory.CreateBasicSegment(t0, t0 + td1, coeffs1);
 
 			coeffs2 = [0, aMax / 2, basicSegment.evaluateVelocityAt(t0 + td1), basicSegment.evaluatePositionAt(t0 + td1)]; // middle segment has no jerk
+
 			basicSegment2 = basicSegmentFactory.CreateBasicSegment(t0 + td1, t0 + td1 + tdm, coeffs2);
 
 			coeffs3 = [-jerk / 6, aMax / 2, basicSegment2.evaluateVelocityAt(t0 + td1 + tdm), basicSegment2.evaluatePositionAt(t0 + td1 + tdm)];
@@ -453,8 +452,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 				if (fastMath.lt(this.segmentData.duration, 0))
 					throw new Error("attempt to change initial time past final time for absolute segment");
 			}
-
-
 
 			var newBasicSegments = this.calculateBasicSegments(t0, tf, p0, v0, pf, this.segmentData.jerkPercent);
 
