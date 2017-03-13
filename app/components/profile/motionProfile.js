@@ -362,15 +362,12 @@ define(["angular",
 				if (prevSegment)
 					prevId = prevSegment.id;
 
-
-
 				if (this.profileLoads[loadSegment.type].countSegments() === 0) {
 					this.profileLoads[loadSegment.type].insertAt(loadSegment, prevId);
 				} else
 					throw new Error("Currently, only one segment per type can be added");
 
-
-				//undo / redo
+				// undo/redo
 				var profile = this;
 				this.undoManager.add({
 					undo: function() {
@@ -380,9 +377,6 @@ define(["angular",
 						profile.addLoadSegment(loadSegment);
 					}
 				});
-
-
-
 			};
 
 
@@ -450,8 +444,6 @@ define(["angular",
 						profile.modifyLoadSegment(segmentId, newSegmentData);
 					}
 				});
-
-
 			};
 
 
@@ -464,14 +456,10 @@ define(["angular",
 				if (!this.profileLoads[type])
 					throw new Error("load type '" + type + "' doesn't appear to be a valid load segment type");
 
-
 				return this.profileLoads[type].getAllSegments();
-
 			};
 
-
 			var factory = {};
-
 
 			factory.createMotionProfile = function(type) {
 				return new MotionProfile(type);
@@ -497,7 +485,6 @@ define(["angular",
 				loads.thrust = segment.thrust;
 				loads.friction = segment.friction;
 
-
 				switch (type) {
 					case "time-distance":
 						return AccelSegment.MakeFromTimeDistance(segment.t0, segment.tf, segment.p0, segment.v0, segment.pf, segment.jPct, segment.mode, loads);
@@ -507,8 +494,8 @@ define(["angular",
 					default:
 						throw new Error("segment type not supported");
 				}
-
 			};
+
 
 			factory.createIndexSegment = function(segment) {
 

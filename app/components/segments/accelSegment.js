@@ -325,7 +325,8 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 				newSegmentData.mode = "incremental";
 
 			this.segmentData.mode = newSegmentData.mode || this.segmentData.mode;
-			this.segmentData.finalVelocity= newSegmentData.finalVelocity || this.segmentData.finalVelocity;
+			this.segmentData.initialVelocity = newSegmentData.initialVelocity || this.segmentData.initialVelocity;
+			this.segmentData.finalVelocity = newSegmentData.finalVelocity || this.segmentData.finalVelocity;
 			this.segmentData.duration = newSegmentData.duration || this.segmentData.duration;
 			this.segmentData.jerkPercent = newSegmentData.jerkPercent || this.segmentData.jerkPercent;
 			this.segmentData.loads = {};
