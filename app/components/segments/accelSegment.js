@@ -157,7 +157,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 					return new AccelSegmentTimeDistance(0,data.duration,0,0,data.distance,data.jerkPercent,data.mode,data.loads);
 				}
 
-			throw new Error("Unkown AccelSegment type: " + data.constructor);
+			throw new Error("Unkown AccelSegment type: "+data.constructor);
 
 			// consider replacing with
 			/*
@@ -171,9 +171,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 
 
-		var AccelSegmentTimeVelocity = function(t0, tf, p0, v0, vf, jPct, mode, loads) {
+		var AccelSegmentTimeVelocity = function(t0, tf, p0, v0, vf, jPct, mode,loads) {
 
-			if(arguments.length <= 7 )
+			if(arguments.length <=7 )
 				throw new Error("Expected at least 7 arguments in AccelSegmentTimeVelocity constructor");
 
 			if (mode !== "absolute")
@@ -326,11 +326,10 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 			this.segmentData.mode = newSegmentData.mode || this.segmentData.mode;
 			this.segmentData.finalVelocity= newSegmentData.finalVelocity || this.segmentData.finalVelocity;
-			this.segmentData.initialVelocity= newSegmentData.initialVelocity || this.segmentData.initialVelocity;
 			this.segmentData.duration = newSegmentData.duration || this.segmentData.duration;
 			this.segmentData.jerkPercent = newSegmentData.jerkPercent || this.segmentData.jerkPercent;
 			this.segmentData.loads = {};
-			angular.extend(this.segmentData.loads, newSegmentData.loads);
+			angular.extend(this.segmentData.loads,newSegmentData.loads);
 
 			this.finalTime = this.initialTime + this.segmentData.duration;
 
@@ -491,10 +490,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 */
 		AccelSegmentTimeDistance.prototype.modifyInitialValues = function(t0, a0, v0, p0) {
 
-			var tf_old, tf, pf;
+			var tf, pf;
 
 			if (this.segmentData.mode === "incremental") {
-				tf_old = this.segments.lastSegment().finalTime;
 				tf = t0 + this.segmentData.duration;
 				pf = p0 + this.segmentData.distance;
 			} else {
@@ -515,7 +513,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segments.initializeWithSegments(newBasicSegments);
 
 			return this;
-
 		};
 
 
