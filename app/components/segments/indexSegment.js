@@ -379,6 +379,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			return indexSegment;
 		};
 
+
+		factory.IndexMotionSegment=IndexMotionSegment;
+
 		return factory;
 	}]);
 });

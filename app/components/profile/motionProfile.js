@@ -16,7 +16,7 @@ define(["angular",
 	"components/segments/accelSegment",
 	"components/segments/indexSegment",
 	"components/segments/loadSegment"
-], function(angular,UndoManager) {
+], function(angular, UndoManager) {
 	angular.module("myApp").factory('motionProfileFactory', ['AccelSegment', 'IndexSegment', 'LoadSegment', 'MotionSegment', 'SegmentStash', 'FastMath', 'ProfileHelper',
 		function(AccelSegment, IndexSegment, LoadSegment, MotionSegment, SegmentStash, fastMath, profileHelper) {
 
@@ -40,18 +40,17 @@ define(["angular",
 				//create object to hold all the profile loads
 				var loads = {};
 
-				if(this.ProfileType==="linear"){
-					Object.keys(LoadSegment.LinearLoadsEnum).forEach(function(load){
-						loads[load]=SegmentStash.makeStash();
+				if (this.ProfileType === "linear") {
+					Object.keys(LoadSegment.LinearLoadsEnum).forEach(function(load) {
+						loads[load] = SegmentStash.makeStash();
 					});
-				}
-				else {
-					Object.keys(LoadSegment.RotaryLoadsEnum).forEach(function (load) {
-						loads[load]=SegmentStash.makeStash();
+				} else {
+					Object.keys(LoadSegment.RotaryLoadsEnum).forEach(function(load) {
+						loads[load] = SegmentStash.makeStash();
 					});
 				}
 
-				this.profileLoads=loads;
+				this.profileLoads = loads;
 
 				this.undoManager = new UndoManager();
 				MotionSegment.MotionSegment.call(this);
@@ -70,6 +69,11 @@ define(["angular",
 			MotionProfile.prototype.setInitialConditions = function(position, velocity, load, thrust, friction) {
 				this.initialPosition = position;
 				this.initialVelocity = velocity;
+
+				this.initialThrust = thrust;
+				this.initialLoad = load;
+				this.initialFriction = friction;
+
 
 				//after setting initial conditions, all subsequent modules must be recalculated
 				var current = this.segments.firstSegment();
@@ -150,10 +154,10 @@ define(["angular",
 				var lastValues;
 
 				if (prev!==null) {
-					//modify the segment being inserted to make sure initial values == previous segment's final values
+				//modify the segment being inserted to make sure initial values == previous segment's final values
 					lastValues = prev.getFinalValues();
 				} else {
-					lastValues = [0,0,this.initialVelocity,this.initialPosition];
+					lastValues = [0, 0, this.initialVelocity, this.initialPosition];
 				}
 
 				segment.modifyInitialValues(lastValues[0], lastValues[1], lastValues[2], lastValues[3]);
@@ -166,17 +170,17 @@ define(["angular",
 				var current = this.segments.getNextSegment(newSegment.id);
 				this.recalculateProfileSegments(current);
 
-				var profile=this;
+				var profile = this;
 
 				// undo /redo functionality
 				this.undoManager.add({
-			        undo: function() {
-			            profile.deleteSegment(newSegment.id);
-			        },
-			        redo: function() {
-			            profile.insertSegment(segment,segmentId);
-			        }
-			    });
+					undo: function() {
+						profile.deleteSegment(newSegment.id);
+					},
+					redo: function() {
+						profile.insertSegment(segment, segmentId);
+					}
+				});
 
 			    return segment;
 			};
@@ -200,17 +204,17 @@ define(["angular",
 
 				this.segments.insertAt(segment, null);
 
-				var profile=this;
+				var profile = this;
 
 				// undo /redo functionality
 				this.undoManager.add({
-			        undo: function() {
-			            profile.deleteSegment(segment.id);
-			        },
-			        redo: function() {
-			            profile.appendSegment(segment);
-			        }
-			    });
+					undo: function() {
+						profile.deleteSegment(segment.id);
+					},
+					redo: function() {
+						profile.appendSegment(segment);
+					}
+				});
 
 			    return segment;
 			};
@@ -234,15 +238,15 @@ define(["angular",
 					throw new Error("Unable to delete segment with id " + segmentId);
 
 				//undo / redo
-				var profile=this;
+				var profile = this;
 				this.undoManager.add({
-			        undo: function() {
-			            profile.appendSegment(segToDelete);
-			        },
-			        redo: function() {
-			            profile.deleteSegment(segmentId);
-			        }
-			    });
+					undo: function() {
+						profile.appendSegment(segToDelete);
+					},
+					redo: function() {
+						profile.deleteSegment(segmentId);
+					}
+				});
 
 
 				//could be the only segment
@@ -250,7 +254,6 @@ define(["angular",
 					return segToDelete;
 
 				this.recalculateProfileSegments(current);
-
 
 
 
@@ -264,7 +267,7 @@ define(["angular",
 			 * @param  {int} segmentId segment id
 			 * @return {MotionSegment}           parent segment
 			 */
-			MotionProfile.prototype.findParentSegmentByChildId=function(segmentId){
+			MotionProfile.prototype.findParentSegmentByChildId = function(segmentId) {
 				if (!fastMath.isNumeric(segmentId) || fastMath.lt(segmentId, 0))
 					throw new Error('expect segmentId to be a positive integer');
 
@@ -273,8 +276,8 @@ define(["angular",
 
 				// go through all parent segments and utilize its stash to try to find the child
 				for (var i = parentSegments.length - 1; i >= 0; i--) {
-					childSegment=parentSegments[i].segments.findById(segmentId);
-					if(childSegment)
+					childSegment = parentSegments[i].segments.findById(segmentId);
+					if (childSegment)
 						return parentSegments[i];
 				}
 
@@ -283,190 +286,188 @@ define(["angular",
 			};
 
 
-	        /**
-	         *
-	         * @param {int} segmentId
-	         * @param {Object} newSegmentData new segment data
-	         * @param {Object} initialConditions initial conditions for the modified segment
-	         * @returns {MotionSegment}
-	         */
-	        MotionProfile.prototype.modifySegmentValues = function(segmentId, newSegmentData, initialConditions) {
-	            var segment = this.findById(segmentId);
-	            if (!segment)
-	                throw new Error("Unable to find segment with id " + segmentId);
+			/**
+			 *
+			 * @param {int} segmentId
+			 * @param {Object} newSegmentData new segment data
+			 * @param {Object} initialConditions initial conditions for the modified segment
+			 * @returns {MotionSegment}
+			 */
+			MotionProfile.prototype.modifySegmentValues = function(segmentId, newSegmentData, initialConditions) {
+				var segment = this.findById(segmentId);
+				if (!segment)
+					throw new Error("Unable to find segment with id " + segmentId);
 
-	            var originalSegmentData = {};
-	            angular.extend(originalSegmentData,segment.segmentData);
+				var originalSegmentData = {};
+				angular.extend(originalSegmentData, segment.segmentData);
 
-	            var modified = segment.modifySegmentValues(newSegmentData, initialConditions);
+				var modified = segment.modifySegmentValues(newSegmentData, initialConditions);
 
-	            //undo / redo
-				var profile=this;
+				//undo / redo
+				var profile = this;
 				this.undoManager.add({
-			        undo: function() {
-			            profile.modifySegmentValues(segmentId, originalSegmentData, initialConditions);
-			        },
-			        redo: function() {
-			            profile.modifySegmentValues(segmentId, newSegmentData, initialConditions);
-			        }
-			    });
+					undo: function() {
+						profile.modifySegmentValues(segmentId, originalSegmentData, initialConditions);
+					},
+					redo: function() {
+						profile.modifySegmentValues(segmentId, newSegmentData, initialConditions);
+					}
+				});
 
-	            return modified;
-	        };
-
-
-	        MotionProfile.prototype.undo = function() {
-	        	if(!this.undoManager.hasUndo())
-	        		throw new Error("There is nothing to undo");
-	        	this.undoManager.undo();
-	        };
-
-	        MotionProfile.prototype.redo = function() {
-
-	        	if(!this.undoManager.hasRedo())
-	        		throw new Error("There is nothing to redo");
-
-	        	this.undoManager.redo();
-	        };
+				return modified;
+			};
 
 
-	        MotionProfile.prototype.findById = function(segmentId) {
-	            return this.segments.findById(segmentId);
-	        };
+			MotionProfile.prototype.undo = function() {
+				if (!this.undoManager.hasUndo())
+					throw new Error("There is nothing to undo");
+				this.undoManager.undo();
+			};
+
+			MotionProfile.prototype.redo = function() {
+
+				if (!this.undoManager.hasRedo())
+					throw new Error("There is nothing to redo");
+
+				this.undoManager.redo();
+			};
+
+
+			MotionProfile.prototype.findById = function(segmentId) {
+				return this.segments.findById(segmentId);
+			};
 
 
 			MotionProfile.prototype.createLoadSegment = function(type, t0, tf, initialLoad, finalLoad) {
-	        	if(!LoadSegment.LoadSegment.prototype.isValidType(this.ProfileType,type))
-	        			throw new Error("Load type '"+type+"' is not valid for "+this.ProfileType +" profiles");
+				if (!LoadSegment.LoadSegment.prototype.isValidType(this.ProfileType, type))
+					throw new Error("Load type '" + type + "' is not valid for " + this.ProfileType + " profiles");
 
-				return LoadSegment.createLoadSegment(type,t0,tf,initialLoad,finalLoad);
+				return LoadSegment.createLoadSegment(type, t0, tf, initialLoad, finalLoad);
 			};
 
 			/**
 			 * Adds a load segment to the profile
 			 * @param {LoadSegment} loadSegment load segment to be added
 			 */
-	        MotionProfile.prototype.addLoadSegment = function(loadSegment) {
+			MotionProfile.prototype.addLoadSegment = function(loadSegment) {
 
 
-	           	// insert or append
-	           	if(this.profileLoads[loadSegment.type].findOverlappingSegment(loadSegment.initialTime, loadSegment.finalTime))
-	        		throw new Error("New segment overlaps an existing segment");
+				// insert or append
+				if (this.profileLoads[loadSegment.type].findOverlappingSegment(loadSegment.initialTime, loadSegment.finalTime))
+					throw new Error("New segment overlaps an existing segment");
 
-	        	// find previous segment. Needed in case of insertion
-	        	var prevSegment = this.profileLoads[loadSegment.type].getPreviousByInitialTime(loadSegment.t0);
-	        	var prevId=null;
-	        	if(prevSegment)
-	        		prevId=prevSegment.id;
+				// find previous segment. Needed in case of insertion
+				var prevSegment = this.profileLoads[loadSegment.type].getPreviousByInitialTime(loadSegment.t0);
+				var prevId = null;
+				if (prevSegment)
+					prevId = prevSegment.id;
 
 
 
-	        	if(this.profileLoads[loadSegment.type].countSegments()===0) {
-	        		this.profileLoads[loadSegment.type].insertAt(loadSegment,prevId);
-	        	}
-				else
+				if (this.profileLoads[loadSegment.type].countSegments() === 0) {
+					this.profileLoads[loadSegment.type].insertAt(loadSegment, prevId);
+				} else
 					throw new Error("Currently, only one segment per type can be added");
 
 
 				//undo / redo
-				var profile=this;
+				var profile = this;
 				this.undoManager.add({
-			        undo: function() {
-			            profile.deleteLoadSegment(loadSegment.id,loadSegment.type);
-			        },
-			        redo: function() {
-			            profile.addLoadSegment(loadSegment);
-			        }
-			    });
+					undo: function() {
+						profile.deleteLoadSegment(loadSegment.id, loadSegment.type);
+					},
+					redo: function() {
+						profile.addLoadSegment(loadSegment);
+					}
+				});
 
 
 
+			};
 
-	        };
 
+			/**
+			 * Deletes load segment identified by segmentId, optionally uses type to identify load type
+			 * @param  {Number} segmentId identfies segment
+			 * @param  {string} type      load type
+			 * @return {LoadSegment}           deleted load segment
+			 */
+			MotionProfile.prototype.deleteLoadSegment = function(segmentId, type) {
 
-	        /**
-	         * Deletes load segment identified by segmentId, optionally uses type to identify load type
-	         * @param  {Number} segmentId identfies segment
-	         * @param  {string} type      load type
-	         * @return {LoadSegment}           deleted load segment
-	         */
-	        MotionProfile.prototype.deleteLoadSegment = function(segmentId, type) {
+				// passing  type is optional, but helpful
+				if (type) {
+					if (!this.profileLoads[type])
+						throw new Error("load type '" + type + "' doesn't appear to be a valid load segment type");
+					return this.profileLoads[type].delete(segmentId);
+				}
 
-	        	// passing  type is optional, but helpful
-	        	if(type) {
-	        		if(!this.profileLoads[type])
-	        			throw new Error("load type '"+type+"' doesn't appear to be a valid load segment type");
-	        		return this.profileLoads[type].delete(segmentId);
-	        	}
+				var deletedSegment;
 
-	        	var deletedSegment;
-
-	        	var that=this;
-	        	// type was not passed, have to check all types
-	        	Object.keys(this.profileLoads).some(function(t) {
-	        		deletedSegment=that.profileLoads[t].delete(segmentId);
-	        		return deletedSegment !== null;
-	        	});
+				var that = this;
+				// type was not passed, have to check all types
+				Object.keys(this.profileLoads).some(function(t) {
+					deletedSegment = that.profileLoads[t].delete(segmentId);
+					return deletedSegment !== null;
+				});
 
 				//undo / redo
-				var profile=this;
+				var profile = this;
 				this.undoManager.add({
-			        undo: function() {
-			            profile.addLoadSegment(deletedSegment);
-			        },
-			        redo: function() {
-			            profile.deleteLoadSegment(segmentId,type);
-			        }
-			    });
+					undo: function() {
+						profile.addLoadSegment(deletedSegment);
+					},
+					redo: function() {
+						profile.deleteLoadSegment(segmentId, type);
+					}
+				});
 
-	        	return deletedSegment;
+				return deletedSegment;
 
-	        };
+			};
 
-	        MotionProfile.prototype.modifyLoadSegment = function(segmentId, newSegmentData) {
+			MotionProfile.prototype.modifyLoadSegment = function(segmentId, newSegmentData) {
 
-	        	if(!newSegmentData.type)
-	        		throw new Error("Expecting new segment to have type");
+				if (!newSegmentData.type)
+					throw new Error("Expecting new segment to have type");
 
-	        	//forcing new segment to be the same type as old segment
-	        	var segment = this.profileLoads[newSegmentData.type].findById(segmentId);
-	            if (!segment)
-	                throw new Error("Unable to find segment with id " + segmentId+".. is it of the same type as the old one?");
+				//forcing new segment to be the same type as old segment
+				var segment = this.profileLoads[newSegmentData.type].findById(segmentId);
+				if (!segment)
+					throw new Error("Unable to find segment with id " + segmentId + ".. is it of the same type as the old one?");
 
-	            this.profileLoads[newSegmentData.type].delete(segmentId);
+				this.profileLoads[newSegmentData.type].delete(segmentId);
 
-	            this.addLoadSegment(newSegmentData);
+				this.addLoadSegment(newSegmentData);
 
 				//undo / redo
-				var profile=this;
+				var profile = this;
 				this.undoManager.add({
-			        undo: function() {
-			            profile.deleteLoadSegment(newSegmentData.id);
-			            profile.addLoadSegment(segment, segment.type);
-			        },
-			        redo: function() {
-			            profile.modifyLoadSegment(segmentId,newSegmentData);
-			        }
-			    });
+					undo: function() {
+						profile.deleteLoadSegment(newSegmentData.id);
+						profile.addLoadSegment(segment, segment.type);
+					},
+					redo: function() {
+						profile.modifyLoadSegment(segmentId, newSegmentData);
+					}
+				});
 
 
-	        };
+			};
 
 
-	        /**
-	         * Returns all load segments present in the motion profile of the specified type
-	         * @param  {string} type Load type
-	         * @return {Array}      array of load segments of specified type
-	         */
-	        MotionProfile.prototype.getAllLoadSegments = function(type) {
-	        	if(!this.profileLoads[type])
-	        		throw new Error("load type '"+type+"' doesn't appear to be a valid load segment type");
+			/**
+			 * Returns all load segments present in the motion profile of the specified type
+			 * @param  {string} type Load type
+			 * @return {Array}      array of load segments of specified type
+			 */
+			MotionProfile.prototype.getAllLoadSegments = function(type) {
+				if (!this.profileLoads[type])
+					throw new Error("load type '" + type + "' doesn't appear to be a valid load segment type");
 
 
-	        	return this.profileLoads[type].getAllSegments();
+				return this.profileLoads[type].getAllSegments();
 
-	        };
+			};
 
 
 			var factory = {};
@@ -483,26 +484,25 @@ define(["angular",
 			 * @param  {Object} segment segment data from the user
 			 * @return {AccelSegment}         newly created acceleration segment
 			 */
-			factory.createAccelSegment=function(type, segment) {
-				if(!type)
+			factory.createAccelSegment = function(type, segment) {
+				if (!type)
 					throw new Error('Need type of segment to create');
 
-				if(!segment)
+				if (!segment)
 					throw new Error("Need segment data to create a segment");
 
-				var loads={};
+				var loads = {};
 
-				loads.load=segment.load;
-				loads.thrust=segment.thrust;
-				loads.friction=segment.friction;
+				loads.load = segment.load;
+				loads.thrust = segment.thrust;
+				loads.friction = segment.friction;
 
 
-				switch(type)
-				{
+				switch (type) {
 					case "time-distance":
-						return AccelSegment.MakeFromTimeDistance(segment.t0, segment.tf, segment.p0, segment.v0, segment.pf, segment.jPct, segment.mode,loads);
+						return AccelSegment.MakeFromTimeDistance(segment.t0, segment.tf, segment.p0, segment.v0, segment.pf, segment.jPct, segment.mode, loads);
 					case "time-velocity":
-						return AccelSegment.MakeFromTimeVelocity(segment.t0, segment.tf, segment.p0, segment.v0, segment.vf, segment.jPct, segment.mode,loads);
+						return AccelSegment.MakeFromTimeVelocity(segment.t0, segment.tf, segment.p0, segment.v0, segment.vf, segment.jPct, segment.mode, loads);
 
 					default:
 						throw new Error("segment type not supported");
@@ -510,15 +510,78 @@ define(["angular",
 
 			};
 
-			factory.createIndexSegment = function (segment) {
+			factory.createIndexSegment = function(segment) {
 
-				if(!segment)
+				if (!segment)
 					throw new Error("Need segment data to create a segment");
 
-				 // function(t0, tf, p0, dp, v, velLimPos, velLimNeg, accJerkPct, decJerkPct, xSkew, ySkew, shape, mode)
+				// function(t0, tf, p0, dp, v, velLimPos, velLimNeg, accJerkPct, decJerkPct, xSkew, ySkew, shape, mode)
 				return IndexSegment.MakeIndexSegment(segment.t0, segment.tf, segment.p0, segment.dp, segment.v0, segment.velLimPos, segment.velLimNeg, segment.accJerkPct, segment.decJerkPct, segment.xSkew, segment.ySkew, segment.shape, segment.mode);
-			}
+			};
 
+
+			/**
+			 * Exports profile data to JSON to be saved
+			 * @param {Object} profile MotionProfile to be serialized
+			 * @return {string} JSON representation of the entire profile
+			 */
+			factory.serializeProfile = function(profile) {
+				var profileObj = {};
+
+				profileObj.type = profile.ProfileType;
+				profileObj.initialPosition = profile.initialPosition;
+				profileObj.initialVelocity = profile.initialVelocity;
+				profileObj.initialLoad = profile.initialLoad;
+				profileObj.initialThrust = profile.initialThrust;
+				profileObj.initialFriction = profile.initialFriction;
+
+				var segments = [];
+
+				profile.getAllSegments().forEach(function(segment) {
+					var segData = segment.exportData();
+					segments.push(segData);
+
+				});
+
+				profileObj.segments = segments;
+
+				return JSON.stringify(profileObj);
+
+
+			};
+
+			/**
+			 * Deseralize
+			 * @param  {[type]} json [description]
+			 * @return {[type]}      [description]
+			 */
+			factory.deserializeProfile = function(json) {
+				var profileGraph;
+				try {
+					profileGraph = JSON.parse(json);
+				} catch (e) {
+					throw new Error("Unable to parse JSON string");
+
+				}
+
+				var profileObj = profileGraph;
+				if (!profileObj)
+					throw new Error("Expecting key 'profile' to exist in the json string");
+
+				var that = this;
+
+				var profile = new MotionProfile(profileObj.type);
+				profileGraph.segments.forEach(function(segObj) {
+					var segment = that[segObj.type].prototype.importFromData(segObj);
+					profile.appendSegment(segment);
+				});
+
+				return profile;
+			};
+
+
+			factory.AccelMotionSegment=AccelSegment.AccelMotionSegment;
+			factory.IndexMotionSegment=IndexSegment.IndexMotionSegment;
 			return factory;
 		}
 	]);
