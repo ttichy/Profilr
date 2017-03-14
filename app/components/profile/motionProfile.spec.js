@@ -61,13 +61,54 @@ define(["angularMocks",
             expect(profileObj.initialVelocity).toBe(2);
 
 
-            var newProfile=motionProfileFactory.deserializeProfile(json);
+            var newProfile = motionProfileFactory.deserializeProfile(json);
 
             expect(newProfile.getAllSegments()[1].EvaluatePositionAt(5)).toBe(profile.getAllSegments()[1].EvaluatePositionAt(5));
 
 
 
         });
+        it('should be able to serialize and deserialize profile with only AccelSegments and load segments', function() {
+
+            var profile = motionProfileFactory.createMotionProfile("rotary");
+
+            profile.setInitialConditions(1, 2);
+
+            var seg1 = motionProfileFactory.createAccelSegment("time-velocity", {
+                t0: 0,
+                tf: 2,
+                p0: 0,
+                v0: 0,
+                vf: 5,
+                jPct: 0.5,
+                mode: "incremental"
+
+            });
+
+            var seg2 = motionProfileFactory.createAccelSegment("time-velocity", {
+                t0: 2,
+                tf: 5,
+                p0: 0,
+                v0: 0,
+                vf: 0,
+                jPct: 0.5,
+                mode: "incremental"
+
+            });
+
+            profile.appendSegment(seg1);
+            profile.appendSegment(seg2);
+
+
+            var loadSeg1 = profile.createLoadSegment("FRICTION", 0, 2, 1, 1);
+
+            profile.addLoadSegment(loadSeg1);
+
+            var newProfile = motionProfileFactory.serializeProfile();
+
+
+        });
+
 
     });
 

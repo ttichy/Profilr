@@ -260,6 +260,20 @@ define(["angular",
 
 			};
 
+			/**
+			 * Removes all profile segments
+			 */
+			MotionProfile.prototype.clear = function() {
+				
+				//need to save all segments 
+
+
+				var that=this;
+				this.getAllSegments().forEach(function(seg){
+					var segToDelete = that.segments.delete(seg.id);
+				});
+			};
+
 
 			/**
 			 * Finds parent segment by child segment id. Eg. pass a basic segment id, get back its accel segment

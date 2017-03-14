@@ -43,6 +43,32 @@ define(["angular", "components/segments/segmentStash"], function(angular) {
 
 
 		/**
+		 * Reconstruct load segment from data representation
+		 * @param  {Object} data 
+		 * @return {LoadSegment}      return newly constructed load segment
+		 */
+		LoadSegment.prototype.importFromData = function(data) {
+			// body...
+		};
+
+
+
+		/**
+		 * Exports data representation of the segment
+		 * @return {Object}      data representation of the load segment
+		 */
+		LoadSegment.prototype.exportData = function() {
+			var data = {};
+			angular.extend(data,this.segmentData);
+
+			data.type='LoadSegment';
+
+			return data;
+		};
+
+
+
+		/**
 		 * Check if load type is valid for a linear profile
 		 * @param  {string}  type load type
 		 * @return {Boolean}      true if load type valid 
