@@ -5,8 +5,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 		var factory = {};
 
-
-
 		/**
 		 * AccelMotion segment constructor
 		 * @param {Array} basicSegments [array of basic segments]
@@ -150,17 +148,25 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 * @return {AccelMotionSegment}      [description]
 		 */
 		AccelMotionSegment.prototype.importFromData = function(data) {
-			
+
 			switch(data.constructor) {
 				case "AccelSegmentTimeVelocity":
 					return new AccelSegmentTimeVelocity(0,data.duration,0,0,data.finalVelocity, data.jerkPercent, data.mode,data.loads);
-				
+
 				case "AccelSegmentTimeDistance":
 					return new AccelSegmentTimeDistance(0,data.duration,0,0,data.distance,data.jerkPercent,data.mode,data.loads);
 				}
-				
+
 			throw new Error("Unkown AccelSegment type: "+data.constructor);
-			
+
+			// consider replacing with
+			/*
+			 * angular.forEach(this.getAllSegments(), function (segments, i) {
+			 * 	segments[i].friction=loads.friction;
+			 * 	segments[i].thrust=loads.thrust;
+			 * 	segments[i].load=loads.load;
+			 * });
+			 */
 		};
 
 
@@ -179,8 +185,10 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segmentData = {
 				dataPermutation: "time-velocity",
 				mode: mode,
-				finalVelocity: vf,
+				initialTime: t0,
 				finalTime: tf,
+				initialVelocity: v0,
+				finalVelocity: vf,
 				duration: tf - t0,
 				jerkPercent: jPct,
 				loads:loads_copy
@@ -262,6 +270,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			basicSegment = basicSegmentFactory.CreateBasicSegment(t0, t0 + td1, coeffs1);
 
 			coeffs2 = [0, aMax / 2, basicSegment.evaluateVelocityAt(t0 + td1), basicSegment.evaluatePositionAt(t0 + td1)]; // middle segment has no jerk
+
 			basicSegment2 = basicSegmentFactory.CreateBasicSegment(t0 + td1, t0 + td1 + tdm, coeffs2);
 
 			coeffs3 = [-jerk / 6, aMax / 2, basicSegment2.evaluateVelocityAt(t0 + td1 + tdm), basicSegment2.evaluatePositionAt(t0 + td1 + tdm)];
@@ -282,19 +291,20 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 */
 		AccelSegmentTimeVelocity.prototype.modifyInitialValues = function(t0, a0, v0, p0) {
 
-			var tf;
+			var tf, vf;
 
 			if (this.segmentData.mode === "incremental") {
 				tf = t0 + this.segmentData.duration;
+				vf = v0 + this.segmentData.finalVelocity - this.segmentData.initialVelocity;
 			} else {
 				tf = this.segmentData.finalTime;
 				this.segmentData.duration = tf - t0;
-
+				vf = this.segmentData.finalVelocity;
 				if (fastMath.lt(this.segmentData.duration, 0))
 					throw new Error('tried to move initial time past final time for absolute segment');
 			}
 
-			var newBasicSegments = this.calculateBasicSegments(t0, tf, p0, v0, this.segmentData.finalVelocity, this.segmentData.jerkPercent);
+			var newBasicSegments = this.calculateBasicSegments(t0, tf, p0, v0, vf, this.segmentData.jerkPercent);
 
 			this.initialTime = newBasicSegments[0].initialTime;
 			this.finalTime = newBasicSegments[newBasicSegments.length - 1].finalTime;
@@ -302,9 +312,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segments.initializeWithSegments(newBasicSegments);
 
 			return this;
-
-
-
 		};
 
 		/**
@@ -314,20 +321,18 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 */
 		AccelSegmentTimeVelocity.prototype.modifySegmentValues = function(newSegmentData, initialConditions) {
 
-
 			if (newSegmentData.mode !== "absolute")
 				newSegmentData.mode = "incremental";
 
-
 			this.segmentData.mode = newSegmentData.mode || this.segmentData.mode;
-			this.segmentData.finalVelocity= newSegmentData.finalVelocity || this.segmentData.finalVelocity;
+			this.segmentData.initialVelocity = newSegmentData.initialVelocity || this.segmentData.initialVelocity;
+			this.segmentData.finalVelocity = newSegmentData.finalVelocity || this.segmentData.finalVelocity;
 			this.segmentData.duration = newSegmentData.duration || this.segmentData.duration;
 			this.segmentData.jerkPercent = newSegmentData.jerkPercent || this.segmentData.jerkPercent;
 			this.segmentData.loads = {};
 			angular.extend(this.segmentData.loads,newSegmentData.loads);
-			
-			this.finalTime=this.initialTime+this.segmentData.duration;
 
+			this.finalTime = this.initialTime + this.segmentData.duration;
 
 			var newBasicSegments = this.calculateBasicSegments(this.initialTime,
 				this.finalTime,
@@ -341,10 +346,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 			this.setBasicSegmentLoads(newSegmentData.loads);
 			return this;
-
-			
 		};
-
 
 
 		/**
@@ -358,10 +360,10 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 * @param {Number} jPct percent jerk
 		 * @param {string} mode absolute or incremental
 		 */
-		var AccelSegmentTimeDistance = function(t0, tf, p0, v0, pf, jPct, mode,loads) {
-			if(arguments.length <=7 )
+		var AccelSegmentTimeDistance = function(t0, tf, p0, v0, pf, jPct, mode, loads) {
+			if(arguments.length <= 7)
 				throw new Error("Expected at least 7 arguments in AccelSegmentTimeDistance constructor");
-			
+
 			if (mode !== "absolute")
 				mode = "incremental";
 
@@ -370,7 +372,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			angular.extend(loads_copy,loads);
 
 			//incremental and absolute segments are instantiated the same way
-
 			this.segmentData = {
 				dataPermutation: "time-distance",
 				finalPosition: pf,
@@ -384,16 +385,12 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 			var basicSegments = this.calculateBasicSegments(t0, tf, p0, v0, pf, jPct);
 
-
 			AccelMotionSegment.call(this, basicSegments);
 			this.setBasicSegmentLoads(loads);
-
-
 		};
 
 		AccelSegmentTimeDistance.prototype = Object.create(AccelMotionSegment.prototype);
 		AccelSegmentTimeDistance.prototype.constructor = AccelSegmentTimeDistance;
-
 
 		/**
 		 * Calculates and creates the 1 to 3 basic segments that AccelSegment consists of
@@ -494,10 +491,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 */
 		AccelSegmentTimeDistance.prototype.modifyInitialValues = function(t0, a0, v0, p0) {
 
-			var tf_old, tf, pf;
+			var tf, pf;
 
 			if (this.segmentData.mode === "incremental") {
-				tf_old = this.segments.lastSegment().finalTime;
 				tf = t0 + this.segmentData.duration;
 				pf = p0 + this.segmentData.distance;
 			} else {
@@ -505,11 +501,10 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 				tf = this.segmentData.finalTime;
 				this.segmentData.duration = tf - t0;
 				pf = this.segmentData.finalPosition;
+				this.segmentData.distance = pf-p0;
 				if (fastMath.lt(this.segmentData.duration, 0))
 					throw new Error("attempt to change initial time past final time for absolute segment");
 			}
-
-
 
 			var newBasicSegments = this.calculateBasicSegments(t0, tf, p0, v0, pf, this.segmentData.jerkPercent);
 
@@ -519,7 +514,6 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segments.initializeWithSegments(newBasicSegments);
 
 			return this;
-
 		};
 
 
@@ -539,9 +533,9 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 			this.segmentData.distance= newSegmentData.distance || this.segmentData.distance;
 			this.segmentData.duration = newSegmentData.duration || this.segmentData.duration;
 			this.segmentData.jerkPercent = newSegmentData.jerkPercent || this.segmentData.jerkPercent;
-			
+
 			this.finalTime=this.initialTime+this.segmentData.duration;
-			
+
 			this.segmentData.loads = {};
 			angular.extend(this.segmentData.loads,newSegmentData.loads);
 
@@ -558,7 +552,7 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 
 			return this;
 
-			
+
 		};
 
 
@@ -574,12 +568,12 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 * @param {string} mode incremental or absolute
 		 * @returns {AccelMotionSegment} [freshly created accel segment]
 		 */
-		factory.MakeFromTimeVelocity = function(t0, tf, p0, v0, vf, jPct, mode,loads) {
+		factory.MakeFromTimeVelocity = function(t0, tf, p0, v0, vf, jPct, mode, loads) {
 
 			if (angular.isUndefined(jPct) || jPct < 0 || jPct > 1)
 				throw new Error('expecting jerk between <0,1>');
 
-			var accelSegment = new AccelSegmentTimeVelocity(t0, tf, p0, v0, vf, jPct, mode,loads);
+			var accelSegment = new AccelSegmentTimeVelocity(t0, tf, p0, v0, vf, jPct, mode, loads);
 
 			return accelSegment;
 
@@ -595,13 +589,13 @@ define(["angular", "components/segments/motionSegment", "components/segments/bas
 		 * @param {Number} jPct  [jerk as a percent of time]
 		 * @returns {AccelMotionSegment} [freshly created accel segment]
 		 */
-		factory.MakeFromTimeDistance = function(t0, tf, p0, v0, pf, jPct, mode,loads) {
+		factory.MakeFromTimeDistance = function(t0, tf, p0, v0, pf, jPct, mode, loads) {
 
 			if (angular.isUndefined(jPct) || jPct < 0 || jPct > 1)
 				throw new Error('expecting jerk between <0,1>');
 			//TODO: more parameter checks
 
-			var accelSegment = new AccelSegmentTimeDistance(t0, tf, p0, v0, pf, jPct, mode,loads);
+			var accelSegment = new AccelSegmentTimeDistance(t0, tf, p0, v0, pf, jPct, mode, loads);
 
 			return accelSegment;
 

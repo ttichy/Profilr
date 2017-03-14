@@ -113,8 +113,9 @@ define(["angular",
 					//handle first segment
 					if (!prev) {
 						previousValues = [0, 0, this.initialVelocity, this.initialPosition];
-					} else
+					} else {
 						previousValues = prev.getFinalValues();
+					}
 
 					current.modifyInitialValues(previousValues[0], previousValues[1], previousValues[2], previousValues[3]);
 
@@ -135,7 +136,6 @@ define(["angular",
 			 * @returns {MotionSegment} existing segment or null if none found
 			 */
 			MotionProfile.prototype.getExistingSegment = function(initialTime) {
-
 				return this.segments.findSegmentWithInitialTime(initialTime);
 			};
 
@@ -153,10 +153,10 @@ define(["angular",
 
 				var lastValues;
 
-				if (prev !== null)
+				if (prev!==null) {
 				//modify the segment being inserted to make sure initial values == previous segment's final values
 					lastValues = prev.getFinalValues();
-				else {
+				} else {
 					lastValues = [0, 0, this.initialVelocity, this.initialPosition];
 				}
 
@@ -182,8 +182,7 @@ define(["angular",
 					}
 				});
 
-
-
+			    return segment;
 			};
 
 			/**
@@ -216,6 +215,8 @@ define(["angular",
 						profile.appendSegment(segment);
 					}
 				});
+
+			    return segment;
 			};
 
 
@@ -316,7 +317,6 @@ define(["angular",
 
 				var modified = segment.modifySegmentValues(newSegmentData, initialConditions);
 
-
 				//undo / redo
 				var profile = this;
 				this.undoManager.add({
@@ -328,9 +328,7 @@ define(["angular",
 					}
 				});
 
-
 				return modified;
-
 			};
 
 
@@ -378,15 +376,12 @@ define(["angular",
 				if (prevSegment)
 					prevId = prevSegment.id;
 
-
-
 				if (this.profileLoads[loadSegment.type].countSegments() === 0) {
 					this.profileLoads[loadSegment.type].insertAt(loadSegment, prevId);
 				} else
 					throw new Error("Currently, only one segment per type can be added");
 
-
-				//undo / redo
+				// undo/redo
 				var profile = this;
 				this.undoManager.add({
 					undo: function() {
@@ -396,9 +391,6 @@ define(["angular",
 						profile.addLoadSegment(loadSegment);
 					}
 				});
-
-
-
 			};
 
 
@@ -466,8 +458,6 @@ define(["angular",
 						profile.modifyLoadSegment(segmentId, newSegmentData);
 					}
 				});
-
-
 			};
 
 
@@ -480,14 +470,10 @@ define(["angular",
 				if (!this.profileLoads[type])
 					throw new Error("load type '" + type + "' doesn't appear to be a valid load segment type");
 
-
 				return this.profileLoads[type].getAllSegments();
-
 			};
 
-
 			var factory = {};
-
 
 			factory.createMotionProfile = function(type) {
 				return new MotionProfile(type);
@@ -513,7 +499,6 @@ define(["angular",
 				loads.thrust = segment.thrust;
 				loads.friction = segment.friction;
 
-
 				switch (type) {
 					case "time-distance":
 						return AccelSegment.MakeFromTimeDistance(segment.t0, segment.tf, segment.p0, segment.v0, segment.pf, segment.jPct, segment.mode, loads);
@@ -523,8 +508,8 @@ define(["angular",
 					default:
 						throw new Error("segment type not supported");
 				}
-
 			};
+
 
 			factory.createIndexSegment = function(segment) {
 
@@ -533,7 +518,6 @@ define(["angular",
 
 				// function(t0, tf, p0, dp, v, velLimPos, velLimNeg, accJerkPct, decJerkPct, xSkew, ySkew, shape, mode)
 				return IndexSegment.MakeIndexSegment(segment.t0, segment.tf, segment.p0, segment.dp, segment.v0, segment.velLimPos, segment.velLimNeg, segment.accJerkPct, segment.decJerkPct, segment.xSkew, segment.ySkew, segment.shape, segment.mode);
-
 			};
 
 
@@ -605,9 +589,7 @@ define(["angular",
 
 			factory.AccelMotionSegment=AccelSegment.AccelMotionSegment;
 			factory.IndexMotionSegment=IndexSegment.IndexMotionSegment;
-
 			return factory;
-
 		}
 	]);
 });

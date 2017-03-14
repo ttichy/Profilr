@@ -102,31 +102,36 @@ define(["angularMocks", "components/segments/accelSegment"], function() {
 
         it('should create an time-velocity accel segment (t0=0,tf=2,p0=0,v0=0,vf=10,j=0.5), modify initial velocity and evaluate correctly', function() {
 
-            var seg = accelSegmentFactory.MakeFromTimeVelocity(0, 2, 0, 0, 10, 0.5);
+            // (t0, tf, p0, v0, vf, jPct, mode, loads)
+            var seg = accelSegmentFactory.MakeFromTimeVelocity(
+            0, // t0
+            2, // tf
+            0, // p0
+            0, // v0
+            10, // vf
+            0.5); // jPct
 
+            // t, a, v, p
             seg.modifyInitialValues(0, 0, 1, 0);
-
 
             var seg1 = seg.getAllSegments()[0];
             var seg2 = seg.getAllSegments()[1];
             var seg3 = seg.getAllSegments()[2];
 
-
             expect(seg1.initialTime).toBe(0);
             expect(seg1.finalTime).toBe(0.5);
             expect(seg1.evaluatePositionAt(0)).toBe(0);
-            expect(seg1.evaluatePositionAt(0.5)).toBe(0.75);
+            expect(seg1.evaluatePositionAt(0.5)).toBeCloseTo(0.777777, 4);
 
             expect(seg2.initialTime).toBe(0.5);
             expect(seg2.finalTime).toBe(1.5);
-            expect(seg2.evaluatePositionAt(0.5)).toBe(0.75);
-            expect(seg2.evaluatePositionAt(1.5)).toBe(6.25);
-
+            expect(seg2.evaluatePositionAt(0.5)).toBeCloseTo(0.77777, 4);
+            expect(seg2.evaluatePositionAt(1.5)).toBeCloseTo(6.77777, 4);
 
             expect(seg3.initialTime).toBe(1.5);
             expect(seg3.finalTime).toBe(2);
-            expect(seg3.evaluatePositionAt(1.5)).toBe(6.25);
-            expect(seg3.evaluatePositionAt(2)).toBe(11);
+            expect(seg3.evaluatePositionAt(1.5)).toBeCloseTo(6.777777, 4);
+            expect(seg3.evaluatePositionAt(2)).toBe(12);
 
         });
 
@@ -136,30 +141,26 @@ define(["angularMocks", "components/segments/accelSegment"], function() {
 
             seg.modifyInitialValues(0, 0, 1, 1);
 
-
             var seg1 = seg.getAllSegments()[0];
             var seg2 = seg.getAllSegments()[1];
             var seg3 = seg.getAllSegments()[2];
 
-
             expect(seg1.initialTime).toBe(0);
             expect(seg1.finalTime).toBe(0.5);
             expect(seg1.evaluatePositionAt(0)).toBe(1);
-            expect(seg1.evaluatePositionAt(0.5)).toBe(1.75);
+            expect(seg1.evaluatePositionAt(0.5)).toBeCloseTo(1.77777, 4);
 
             expect(seg2.initialTime).toBe(0.5);
             expect(seg2.finalTime).toBe(1.5);
-            expect(seg2.evaluatePositionAt(0.5)).toBe(1.75);
-            expect(seg2.evaluatePositionAt(1.5)).toBe(7.25);
+            expect(seg2.evaluatePositionAt(0.5)).toBeCloseTo(1.777777, 4);
+            expect(seg2.evaluatePositionAt(1.5)).toBeCloseTo(7.777777, 4);
 
 
             expect(seg3.initialTime).toBe(1.5);
             expect(seg3.finalTime).toBe(2);
-            expect(seg3.evaluatePositionAt(1.5)).toBe(7.25);
-            expect(seg3.evaluatePositionAt(2)).toBe(12);
-
+            expect(seg3.evaluatePositionAt(1.5)).toBeCloseTo(7.777777, 4);
+            expect(seg3.evaluatePositionAt(2)).toBe(13);
         });
-
 
         it('should create an absolute time-velocity accel segment (t0=2,tf=4,p0=6,v0=5,pf=10,j=0), modify initial time, position AND velocity and evaluate correctly', function() {
 
@@ -428,10 +429,10 @@ define(["angularMocks", "components/segments/accelSegment"], function() {
         it("Should correctly serialize and deserialize an accel segment", function() {
 
             //note this only works with initial conditions equal to zero.
-            //once 
+            //once
 
             var seg = accelSegmentFactory.MakeFromTimeDistance(0, 1, 0, 0, 0.5, 0);
-            
+
             var obj= seg.exportData();
 
             expect(obj.finalTime).toBe(1);
